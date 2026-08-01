@@ -1,0 +1,6 @@
+{
+  "name": "Gestão Materiais de Construção",
+  "description": "SaaS de gestão para lojas de material de construção multi-filial e multi-empresa",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
