@@ -1,11 +1,15 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificacaoRealtimeProvider } from './components/NotificacaoRealtimeProvider';
 import { LoginPage } from './pages/LoginPage';
 import { OnboardingWizard } from './pages/OnboardingWizard';
 import { DashboardShell } from './components/DashboardShell';
 import { DashboardHome } from './pages/DashboardHome';
 import { PDVPage } from './pages/PDVPage';
+import { EntregasModulePage } from './pages/EntregasModulePage';
+import { FinanceiroModulePage } from './pages/FinanceiroModulePage';
+import { InventarioModulePage } from './pages/InventarioModulePage';
 import { ModulePlaceholderPage } from './pages/ModulePlaceholderPage';
 
 // Protected Route Component
@@ -30,7 +34,11 @@ const ProtectedLayout: React.FC = () => {
     return <Navigate to="/cadastro" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <NotificacaoRealtimeProvider>
+      <Outlet />
+    </NotificacaoRealtimeProvider>
+  );
 };
 
 // Public Route Guard (redirect to dashboard if already logged in)
@@ -77,9 +85,9 @@ export default function App() {
               <Route path="pdv" element={<PDVPage />} />
               <Route path="estoque" element={<ModulePlaceholderPage />} />
               <Route path="clientes" element={<ModulePlaceholderPage />} />
-              <Route path="entregas" element={<ModulePlaceholderPage />} />
-              <Route path="financeiro" element={<ModulePlaceholderPage />} />
-              <Route path="inventario" element={<ModulePlaceholderPage />} />
+              <Route path="entregas" element={<EntregasModulePage />} />
+              <Route path="financeiro" element={<FinanceiroModulePage />} />
+              <Route path="inventario" element={<InventarioModulePage />} />
               <Route path="chat" element={<ModulePlaceholderPage />} />
               <Route path="configuracoes" element={<ModulePlaceholderPage />} />
             </Route>

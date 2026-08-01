@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Building2, 
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { formatarCpfCnpj, onlyNumbers } from '../utils/formatters';
 
 export const OnboardingWizard: React.FC = () => {
   const navigate = useNavigate();
@@ -34,10 +35,42 @@ export const OnboardingWizard: React.FC = () => {
 
   // Step 2 Form: Dados da loja
   const [nomeEmpresa, setNomeEmpresa] = useState('');
-  const [cnpj, setCnpj] = useState('');
+  const [cpfCnpj, setCpfCnpj] = useState('');
+  const [empresaEncontrada, setEmpresaEncontrada] = useState<string | null>(null);
+  const [buscandoCnpj, setBuscandoCnpj] = useState(false);
   const [nomeFilial, setNomeFilial] = useState('Matriz');
   const [enderecoFilial, setEnderecoFilial] = useState('');
   const [createdEmpresaId, setCreatedEmpresaId] = useState<string | null>(null);
+
+  // Consulta CNPJ na BrasilAPI quando atingir 14 dígitos numéricos
+  useEffect(() => {
+    const cleanCnpj = onlyNumbers(cpfCnpj);
+    if (cleanCnpj.length === 14) {
+      setBuscandoCnpj(true);
+      fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`)
+        .then((res) => {
+          if (!res.ok) throw new Error('CNPJ não encontrado');
+          return res.json();
+        })
+        .then((data) => {
+          const nomeEncontrado = data.razao_social || data.nome_fantasia;
+          if (nomeEncontrado) {
+            setEmpresaEncontrada(nomeEncontrado);
+          } else {
+            setEmpresaEncontrada(null);
+          }
+        })
+        .catch(() => {
+          setEmpresaEncontrada(null);
+        })
+        .finally(() => {
+          setBuscandoCnpj(false);
+        });
+    } else {
+      setEmpresaEncontrada(null);
+      setBuscandoCnpj(false);
+    }
+  }, [cpfCnpj]);
 
   // Step 3 Form: Código cortesia
   const [temCodigoCortesia, setTemCodigoCortesia] = useState(false);
@@ -132,7 +165,7 @@ export const OnboardingWizard: React.FC = () => {
       const { data, error } = await supabase.rpc('criar_empresa_onboarding', {
         p_nome_empresa: nomeEmpresa.trim(),
         p_slug: slug,
-        p_cnpj: cnpj.trim() || null,
+        p_cnpj: onlyNumbers(cpfCnpj) || null,
         p_admin_user_id: userId,
         p_admin_nome: nomeUsuario.trim() || 'Administrador',
       });
@@ -401,7 +434,7 @@ export const OnboardingWizard: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1.5">
-                  CNPJ <span className="text-xs font-normal text-zinc-500">(opcional)</span>
+                  CPF ou CNPJ <span className="text-xs font-normal text-zinc-500">(opcional)</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
@@ -409,12 +442,26 @@ export const OnboardingWizard: React.FC = () => {
                   </div>
                   <input
                     type="text"
-                    value={cnpj}
-                    onChange={(e) => setCnpj(e.target.value)}
-                    placeholder="00.000.000/0001-00"
+                    value={cpfCnpj}
+                    onChange={(e) => {
+                      const formatted = formatarCpfCnpj(e.target.value);
+                      setCpfCnpj(formatted);
+                    }}
+                    placeholder="000.000.000-00 ou 00.000.000/0001-00"
                     className="w-full pl-9 pr-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900"
                   />
                 </div>
+                {buscandoCnpj && (
+                  <p className="mt-1.5 text-xs text-zinc-500 flex items-center gap-1.5">
+                    Consultando CNPJ...
+                  </p>
+                )}
+                {empresaEncontrada && !buscandoCnpj && (
+                  <p className="mt-1.5 text-xs text-emerald-700 font-medium flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    Empresa encontrada: {empresaEncontrada}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

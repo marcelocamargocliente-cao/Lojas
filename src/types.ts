@@ -35,6 +35,10 @@ export interface Usuario {
   nome: string;
   email: string;
   cargo: CargoUsuario;
+  remuneracao_tipo?: 'so_fixo' | 'so_comissao' | 'fixo_comissao' | null;
+  salario_fixo?: number | null;
+  comissao_percentual?: number | null;
+  comissao_valor_fixo?: number | null;
   created_at?: string;
 }
 
@@ -156,3 +160,238 @@ export interface Devolucao {
   motivo?: string | null;
   created_at?: string;
 }
+
+export interface Veiculo {
+  id: string;
+  empresa_id?: string;
+  placa: string;
+  modelo: string;
+  marca?: string | null;
+  ano?: number | null;
+  tipo: 'caminhao' | 'moto' | 'carro' | 'van';
+  status: 'ativo' | 'manutencao' | 'inativo';
+  created_at?: string;
+}
+
+export type StatusEntrega = 'atribuida' | 'a_caminho' | 'entregue' | 'nao_entregue' | 'entregue_com_avaria';
+
+export interface Entrega {
+  id: string;
+  empresa_id?: string;
+  venda_id: string;
+  veiculo_id?: string | null;
+  status: StatusEntrega;
+  atribuido_por?: string | null;
+  confirmado_por?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  venda?: Venda;
+  veiculo?: Veiculo;
+  entrega_entregadores?: { id: string; entregador_id: string; entregador?: Usuario }[];
+  entrega_fotos?: EntregaFoto[];
+  entrega_nao_entrega?: EntregaNaoEntrega[];
+  entrega_avaria?: EntregaAvaria[];
+}
+
+export interface EntregaEntregador {
+  id: string;
+  entrega_id: string;
+  entregador_id: string;
+  entregador?: Usuario;
+}
+
+export interface EntregaFoto {
+  id: string;
+  entrega_id: string;
+  tipo: 'comprovante_entrega' | 'nao_entrega' | 'avaria';
+  foto_url: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  created_at?: string;
+}
+
+export type MotivoNaoEntrega =
+  | 'ausente'
+  | 'cliente_recusou'
+  | 'endereco_nao_localizado'
+  | 'sem_acesso_local'
+  | 'avaria_transporte'
+  | 'reagendamento';
+
+export interface EntregaNaoEntrega {
+  id: string;
+  entrega_id: string;
+  motivo: MotivoNaoEntrega;
+  observacao?: string | null;
+  created_at?: string;
+}
+
+export interface EntregaAvaria {
+  id: string;
+  entrega_id: string;
+  decisao_cliente: 'aceitou' | 'recusou';
+  status_resolucao: 'pendente' | 'resolvido';
+  decisao_final?: string | null;
+  observacao?: string | null;
+  created_at?: string;
+}
+
+export interface ComissaoEntrega {
+  id: string;
+  empresa_id?: string;
+  entrega_id: string;
+  entregador_id: string;
+  valor: number;
+  status?: string;
+  created_at?: string;
+  entrega?: Entrega;
+}
+
+export interface ConfigComissaoEntrega {
+  id: string;
+  empresa_id?: string;
+  ativo: boolean;
+  tipo: 'percentual' | 'fixo';
+  valor: number;
+  dividir_entregadores: boolean;
+  created_at?: string;
+}
+
+export interface NotificacaoRealtime {
+  id: string;
+  empresa_id?: string;
+  mensagem: string;
+  lida?: boolean;
+  created_at?: string;
+}
+
+// Financeiro Interfaces
+export interface Fornecedor {
+  id: string;
+  empresa_id?: string;
+  nome: string;
+  cnpj_cpf?: string | null;
+  email?: string | null;
+  telefone?: string | null;
+  created_at?: string;
+}
+
+export interface ContaPagar {
+  id: string;
+  empresa_id?: string;
+  filial_id?: string | null;
+  fornecedor_id?: string | null;
+  fornecedor_nome?: string | null;
+  descricao: string;
+  categoria?: string | null;
+  valor: number;
+  vencimento: string; // ISO YYYY-MM-DD
+  forma_pagamento?: string | null;
+  comprovante_url?: string | null;
+  status: 'pendente' | 'pago' | 'vencido';
+  pago_em?: string | null;
+  pago_por?: string | null;
+  pago_por_nome?: string | null;
+  created_at?: string;
+  fornecedor?: Fornecedor;
+}
+
+export interface PagamentoFuncionario {
+  id: string;
+  empresa_id?: string;
+  funcionario_id: string;
+  tipo: 'salario' | 'adiantamento' | 'ferias';
+  valor: number;
+  competencia_mes: number;
+  competencia_ano: number;
+  data_pagamento: string;
+  observacao?: string | null;
+  created_at?: string;
+  funcionario?: Usuario;
+}
+
+export interface NotaFiscalEntrada {
+  id: string;
+  empresa_id?: string;
+  filial_id?: string | null;
+  numero_nota: string;
+  chave_acesso?: string | null;
+  fornecedor_nome: string;
+  fornecedor_cnpj: string;
+  valor_bruto: number;
+  valor_impostos: number;
+  valor_liquido: number;
+  data_emissao?: string | null;
+  vencimento?: string | null;
+  status?: 'pendente' | 'processado' | 'cancelado';
+  created_at?: string;
+  itens?: NotaFiscalItem[];
+}
+
+export interface NotaFiscalItem {
+  id: string;
+  nota_id: string;
+  codigo_fornecedor: string;
+  descricao_fornecedor: string;
+  quantidade: number;
+  valor_unitario: number;
+  valor_total: number;
+  produto_id_mapeado?: string | null;
+  produto_mapeado?: Produto;
+}
+
+export interface MapeamentoProdutoFornecedor {
+  id: string;
+  empresa_id?: string;
+  fornecedor_cnpj: string;
+  codigo_fornecedor: string;
+  produto_id: string;
+  created_at?: string;
+}
+
+export interface BalancoMensal {
+  filial_id?: string;
+  filial_nome?: string;
+  mes: number;
+  ano: number;
+  total_vendas: number;
+  quantidade_vendas: number;
+  total_contas_pagas?: number;
+  lucro_liquido_estimado?: number;
+}
+
+// Inventario Interfaces
+export interface Inventario {
+  id: string;
+  empresa_id?: string;
+  filial_id: string;
+  tipo: 'completo' | 'ciclico';
+  modo_contagem: 'cega' | 'aberta';
+  status: 'em_andamento' | 'finalizado' | 'cancelado';
+  categoria_filtro?: string | null;
+  localizacao_filtro?: string | null;
+  criado_por?: string | null;
+  criado_em?: string;
+  finalizado_em?: string | null;
+  created_at?: string;
+  filial?: Filial;
+  itens_count?: number;
+  divergencias_count?: number;
+}
+
+export interface InventarioItem {
+  id: string;
+  inventario_id: string;
+  produto_id: string;
+  quantidade_sistema: number;
+  quantidade_contada?: number | null;
+  divergencia?: number | null;
+  recontagem_necessaria?: boolean;
+  motivo_ajuste?: 'quebra' | 'extravio' | 'erro_recebimento' | 'outro' | null;
+  travado?: boolean;
+  contado_por?: string | null;
+  contado_em?: string | null;
+  produto?: Produto;
+  localizacao_fisica?: string | null;
+}
+
