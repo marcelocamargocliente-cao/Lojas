@@ -10,6 +10,8 @@ import {
   DollarSign,
   Boxes,
   MessageSquare,
+  HelpCircle,
+  FileSpreadsheet,
   Settings,
   LogOut,
   ChevronDown,
@@ -44,9 +46,12 @@ export const DashboardShell: React.FC = () => {
     { label: 'Entregas', path: '/dashboard/entregas', icon: Truck },
     { label: 'Financeiro', path: '/dashboard/financeiro', icon: DollarSign },
     { label: 'Inventário', path: '/dashboard/inventario', icon: Boxes },
-    { label: 'Chat', path: '/dashboard/chat', icon: MessageSquare },
+    { label: 'Chat interno', path: '/dashboard/chat', icon: MessageSquare },
+    { label: 'Suporte', path: '/dashboard/suporte', icon: HelpCircle },
+    { label: 'Importador', path: '/dashboard/importador', icon: FileSpreadsheet },
     { label: 'Configurações', path: '/dashboard/configuracoes', icon: Settings },
   ];
+
 
   const handleLogout = async () => {
     await signOut();

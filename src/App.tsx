@@ -10,6 +10,10 @@ import { PDVPage } from './pages/PDVPage';
 import { EntregasModulePage } from './pages/EntregasModulePage';
 import { FinanceiroModulePage } from './pages/FinanceiroModulePage';
 import { InventarioModulePage } from './pages/InventarioModulePage';
+import { ChatPage } from './pages/ChatPage';
+import { ChamadosPage } from './pages/ChamadosPage';
+import { ImportadorPage } from './pages/ImportadorPage';
+import { EntradaNotaFiscalPage } from './pages/EntradaNotaFiscalPage';
 import { ModulePlaceholderPage } from './pages/ModulePlaceholderPage';
 
 // Protected Route Component
@@ -83,12 +87,14 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardShell />}>
               <Route index element={<DashboardHome />} />
               <Route path="pdv" element={<PDVPage />} />
-              <Route path="estoque" element={<ModulePlaceholderPage />} />
+              <Route path="estoque" element={<EntradaNotaFiscalPage />} />
               <Route path="clientes" element={<ModulePlaceholderPage />} />
               <Route path="entregas" element={<EntregasModulePage />} />
               <Route path="financeiro" element={<FinanceiroModulePage />} />
               <Route path="inventario" element={<InventarioModulePage />} />
-              <Route path="chat" element={<ModulePlaceholderPage />} />
+              <Route path="chat" element={<ChatPage />} />
+              <Route path="suporte" element={<ChamadosPage />} />
+              <Route path="importador" element={<ImportadorPage />} />
               <Route path="configuracoes" element={<ModulePlaceholderPage />} />
             </Route>
           </Route>

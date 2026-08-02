@@ -83,7 +83,7 @@ export const FinanceiroModulePage: React.FC = () => {
           }`}
         >
           <FileCode2 className="w-4 h-4" />
-          <span>Entrada NF-e (XML)</span>
+          <span>Entrada de Mercadoria</span>
         </button>
 
         <button

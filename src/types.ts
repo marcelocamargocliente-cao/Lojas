@@ -395,3 +395,85 @@ export interface InventarioItem {
   localizacao_fisica?: string | null;
 }
 
+// Chat Interfaces
+export interface ChatMensagem {
+  id: string;
+  empresa_id?: string;
+  filial_id?: string | null;
+  remetente_id: string;
+  destinatario_id?: string | null;
+  tipo: 'individual' | 'transmissao';
+  escopo_transmissao?: 'filial' | 'empresa' | null;
+  conteudo: string;
+  deletado?: boolean;
+  editado?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  remetente?: Usuario;
+  destinatario?: Usuario;
+  leituras_count?: number;
+  leituras?: ChatLeitura[];
+}
+
+export interface ChatLeitura {
+  id: string;
+  mensagem_id: string;
+  usuario_id: string;
+  lido_em: string;
+  usuario?: Usuario;
+}
+
+// Suporte Interfaces
+export interface ChamadoSuporte {
+  id: string;
+  empresa_id?: string;
+  usuario_id: string;
+  categoria: 'Bug' | 'Dúvida' | 'Sugestão' | 'Outro' | string;
+  titulo: string;
+  descricao: string;
+  status: 'aberto' | 'em_analise' | 'resolvido';
+  prazo_estimado?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  usuario?: Usuario;
+  mensagens_count?: number;
+}
+
+export interface ChamadoMensagem {
+  id: string;
+  chamado_id: string;
+  remetente_id: string;
+  mensagem: string;
+  suporte_resposta?: boolean;
+  created_at?: string;
+  remetente?: Usuario;
+}
+
+// Importador Interfaces
+export interface Importacao {
+  id: string;
+  empresa_id?: string;
+  usuario_id?: string;
+  tipo: 'produtos' | 'estoque' | 'clientes' | 'fornecedores';
+  status: 'pendente' | 'preview' | 'importado' | 'revertido';
+  nome_arquivo?: string | null;
+  total_linhas?: number;
+  linhas_sucesso?: number;
+  linhas_erro?: number;
+  mapeamento_colunas?: Record<string, string> | null;
+  created_at?: string;
+  usuario?: Usuario;
+}
+
+export interface ImportacaoRegistro {
+  id: string;
+  importacao_id: string;
+  linha_numero: number;
+  dados_originais: Record<string, any>;
+  dados_mapeados: Record<string, any>;
+  status: 'pendente' | 'ok' | 'erro';
+  mensagem_erro?: string | null;
+  entidade_criada_id?: string | null;
+}
+
+
