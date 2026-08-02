@@ -17,6 +17,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { ChamadoSuporte, ChamadoMensagem } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { InputMaiusculo, TextareaMaiusculo } from '../components/InputMaiusculo';
 
 export const ChamadosPage: React.FC = () => {
   const { usuarioProfile, empresa } = useAuth();
@@ -328,7 +329,7 @@ export const ChamadosPage: React.FC = () => {
               {/* Reply Box */}
               {selectedChamado.status !== 'resolvido' ? (
                 <form onSubmit={handleEnviarMensagemThread} className="p-3 border-t border-[#E5E5E5] bg-white flex items-center gap-2">
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={novoTexto}
                     onChange={(e) => setNovoTexto(e.target.value)}
@@ -397,7 +398,7 @@ export const ChamadosPage: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-zinc-700 mb-1">Assunto / Título Resumido</label>
-                <input
+                <InputMaiusculo
                   type="text"
                   required
                   value={titulo}
@@ -409,7 +410,7 @@ export const ChamadosPage: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-zinc-700 mb-1">Descrição Detalhada</label>
-                <textarea
+                <TextareaMaiusculo
                   required
                   rows={4}
                   value={descricao}

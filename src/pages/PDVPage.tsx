@@ -9,7 +9,8 @@ import {
   Store,
   CreditCard,
   Building2,
-  PackageCheck
+  PackageCheck,
+  Package
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { CartItem, Cliente } from '../types';
@@ -18,6 +19,7 @@ import { ClienteStatusModal } from '../components/ClienteStatusModal';
 import { CarrinhoVenda } from '../components/CarrinhoVenda';
 import { FinalizarVendaModal } from '../components/FinalizarVendaModal';
 import { DevolucaoPage } from './DevolucaoPage';
+import { ConsultaEstoqueModal } from '../components/ConsultaEstoqueModal';
 
 export const PDVPage: React.FC = () => {
   const { usuarioProfile, user, selectedFilial, filiais } = useAuth();
@@ -33,6 +35,9 @@ export const PDVPage: React.FC = () => {
 
   // Modal checkout state
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+
+  // Stock enquiry modal state
+  const [showConsultaEstoque, setShowConsultaEstoque] = useState(false);
 
   // When a customer is picked from search
   const handleSelectClienteFromSearch = (cliente: Cliente | null) => {
@@ -97,8 +102,17 @@ export const PDVPage: React.FC = () => {
           </div>
         </div>
 
-        {/* View mode tabs & Logged operator badge */}
+        {/* View mode tabs & Logged operator badge & Stock enquiry button */}
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowConsultaEstoque(true)}
+            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100/80 text-zinc-950 font-bold border border-[#F5D800] rounded-lg text-xs flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+          >
+            <Package className="w-4 h-4 text-amber-700" />
+            <span>Consultar estoque</span>
+          </button>
+
           {/* Tabs */}
           <div className="flex items-center bg-zinc-100 p-1 rounded-lg border border-[#E5E5E5]">
             <button
@@ -264,6 +278,13 @@ export const PDVPage: React.FC = () => {
           onVendaConcluida={handleVendaConcluida}
         />
       )}
+
+      {/* Stock Enquiry Modal */}
+      <ConsultaEstoqueModal
+        isOpen={showConsultaEstoque}
+        onClose={() => setShowConsultaEstoque(false)}
+        selectedFilial={selectedFilial}
+      />
     </div>
   );
 };

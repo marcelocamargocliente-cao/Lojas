@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Trash2, AlertTriangle, Building2, Package, Layers, X, Edit3 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { CartItem, Filial, Produto, ProdutoFilial } from '../types';
+import { useClickOutside } from '../hooks/useClickOutside';
 
 interface CarrinhoVendaProps {
   items: CartItem[];
@@ -31,24 +32,8 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setOpenDropdown(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpenDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  // Close dropdown on outside click or Escape key using reusable hook
+  useClickOutside(wrapperRef, () => setOpenDropdown(false), openDropdown);
 
   // Search products by name or code
   useEffect(() => {

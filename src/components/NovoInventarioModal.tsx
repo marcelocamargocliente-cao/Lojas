@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Boxes, Plus, Eye, EyeOff, Layers, MapPin, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { InputMaiusculo } from './InputMaiusculo';
 
 interface NovoInventarioModalProps {
   isOpen: boolean;
@@ -160,7 +161,7 @@ export const NovoInventarioModal: React.FC<NovoInventarioModalProps> = ({
           {tipo === 'ciclico' && (
             <div className="p-3 bg-zinc-50 border border-[#E5E5E5] rounded-lg space-y-2">
               <label className="block text-[11px] font-semibold text-zinc-700">Filtro de Localização Física</label>
-              <input
+              <InputMaiusculo
                 type="text"
                 value={localizacaoFiltro}
                 onChange={(e) => setLocalizacaoFiltro(e.target.value)}

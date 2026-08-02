@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabaseClient';
 import { ChatMensagem, ChatLeitura, Usuario } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { NotificacaoTransmissaoBanner } from '../components/NotificacaoTransmissaoBanner';
+import { InputMaiusculo, TextareaMaiusculo } from '../components/InputMaiusculo';
 
 export const ChatPage: React.FC = () => {
   const { usuarioProfile, empresa, selectedFilial } = useAuth();
@@ -631,7 +632,7 @@ export const ChatPage: React.FC = () => {
                       {/* Editing mode input inside bubble */}
                       {editingMessageId === msg.id ? (
                         <div className="space-y-2 min-w-[200px]">
-                          <input
+                          <InputMaiusculo
                             type="text"
                             value={editText}
                             onChange={(e) => setEditText(e.target.value)}
@@ -717,7 +718,7 @@ export const ChatPage: React.FC = () => {
           {/* Bottom Send Input Bar for 1-on-1 */}
           {activeTab === 'individual' && selectedUser && (
             <form onSubmit={handleEnviarMensagemIndividual} className="p-3 border-t border-[#E5E5E5] bg-white flex items-center gap-2">
-              <input
+              <InputMaiusculo
                 type="text"
                 value={novoTexto}
                 onChange={(e) => setNovoTexto(e.target.value)}
@@ -782,7 +783,7 @@ export const ChatPage: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-zinc-700 mb-1">Mensagem do Comunicado</label>
-                <textarea
+                <TextareaMaiusculo
                   rows={4}
                   value={broadcastContent}
                   onChange={(e) => setBroadcastContent(e.target.value)}

@@ -3,6 +3,7 @@ import { Truck, Plus, Edit2, Trash2, Search, AlertCircle, CheckCircle2, ShieldAl
 import { supabase } from '../lib/supabaseClient';
 import { Veiculo } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { InputMaiusculo } from '../components/InputMaiusculo';
 
 export const VeiculosPage: React.FC = () => {
   const { empresa } = useAuth();
@@ -176,7 +177,7 @@ export const VeiculosPage: React.FC = () => {
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
             <Search className="w-4 h-4" />
           </div>
-          <input
+          <InputMaiusculo
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -299,7 +300,7 @@ export const VeiculosPage: React.FC = () => {
                 <label className="block text-xs font-medium text-zinc-700 mb-1">
                   Placa do Veículo *
                 </label>
-                <input
+                <InputMaiusculo
                   type="text"
                   required
                   value={placa}
@@ -314,7 +315,7 @@ export const VeiculosPage: React.FC = () => {
                   <label className="block text-xs font-medium text-zinc-700 mb-1">
                     Modelo *
                   </label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     required
                     value={modelo}
@@ -327,7 +328,7 @@ export const VeiculosPage: React.FC = () => {
                   <label className="block text-xs font-medium text-zinc-700 mb-1">
                     Marca
                   </label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={marca}
                     onChange={(e) => setMarca(e.target.value)}

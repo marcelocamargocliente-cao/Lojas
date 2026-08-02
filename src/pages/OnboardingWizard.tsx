@@ -18,6 +18,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { formatarCpfCnpj, onlyNumbers } from '../utils/formatters';
+import { InputMaiusculo } from '../components/InputMaiusculo';
 
 export const OnboardingWizard: React.FC = () => {
   const navigate = useNavigate();
@@ -331,7 +332,7 @@ export const OnboardingWizard: React.FC = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                     <User className="w-4 h-4" />
                   </div>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     required
                     value={nomeUsuario}
@@ -421,7 +422,7 @@ export const OnboardingWizard: React.FC = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                     <Building2 className="w-4 h-4" />
                   </div>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     required
                     value={nomeEmpresa}
@@ -473,7 +474,7 @@ export const OnboardingWizard: React.FC = () => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                       <Store className="w-4 h-4" />
                     </div>
-                    <input
+                    <InputMaiusculo
                       type="text"
                       required
                       value={nomeFilial}
@@ -492,7 +493,7 @@ export const OnboardingWizard: React.FC = () => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                       <MapPin className="w-4 h-4" />
                     </div>
-                    <input
+                    <InputMaiusculo
                       type="text"
                       value={enderecoFilial}
                       onChange={(e) => setEnderecoFilial(e.target.value)}

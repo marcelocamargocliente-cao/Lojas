@@ -3,6 +3,7 @@ import { Camera, MapPin, CheckCircle2, X, AlertTriangle, ShieldAlert, Upload, Na
 import { supabase } from '../lib/supabaseClient';
 import { Entrega, MotivoNaoEntrega, StatusEntrega } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { TextareaMaiusculo } from './InputMaiusculo';
 
 interface ConfirmarEntregaModalProps {
   entrega: Entrega;
@@ -216,7 +217,7 @@ export const ConfirmarEntregaModal: React.FC<ConfirmarEntregaModalProps> = ({
                 <option value="reagendamento">Cliente solicitou reagendamento</option>
               </select>
 
-              <textarea
+              <TextareaMaiusculo
                 rows={2}
                 value={obsNaoEntrega}
                 onChange={(e) => setObsNaoEntrega(e.target.value)}
@@ -262,7 +263,7 @@ export const ConfirmarEntregaModal: React.FC<ConfirmarEntregaModalProps> = ({
                 <label className="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-1">
                   Descrição da avaria
                 </label>
-                <textarea
+                <TextareaMaiusculo
                   rows={2}
                   value={obsAvaria}
                   onChange={(e) => setObsAvaria(e.target.value)}

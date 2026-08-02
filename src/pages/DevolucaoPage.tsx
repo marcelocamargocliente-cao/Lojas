@@ -16,6 +16,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { Venda, VendaItem, Devolucao } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { InputMaiusculo, TextareaMaiusculo } from '../components/InputMaiusculo';
 
 export const DevolucaoPage: React.FC = () => {
   const { empresa, selectedFilial } = useAuth();
@@ -270,7 +271,7 @@ export const DevolucaoPage: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                   <Search className="w-4 h-4" />
                 </div>
-                <input
+                <InputMaiusculo
                   type="text"
                   value={buscaVenda}
                   onChange={(e) => setBuscaVenda(e.target.value)}
@@ -437,7 +438,7 @@ export const DevolucaoPage: React.FC = () => {
                     <label className="block text-xs font-medium text-zinc-700 mb-1">
                       Motivo da devolução / avaria
                     </label>
-                    <textarea
+                    <TextareaMaiusculo
                       rows={2}
                       value={motivo}
                       onChange={(e) => setMotivo(e.target.value)}

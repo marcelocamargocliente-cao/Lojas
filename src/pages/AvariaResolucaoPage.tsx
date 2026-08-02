@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, ShieldAlert, FileText, Image, RefreshCw, X
 import { supabase } from '../lib/supabaseClient';
 import { Entrega, EntregaAvaria, EntregaFoto } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { TextareaMaiusculo } from '../components/InputMaiusculo';
 
 export const AvariaResolucaoPage: React.FC = () => {
   const { empresa } = useAuth();
@@ -284,7 +285,7 @@ export const AvariaResolucaoPage: React.FC = () => {
                   </button>
                 </div>
 
-                <textarea
+                <TextareaMaiusculo
                   rows={3}
                   required
                   value={decisaoFinal}

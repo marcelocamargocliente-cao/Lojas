@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useClickOutside } from '../hooks/useClickOutside';
 import { 
   FileCode2, 
   Upload, 
@@ -23,6 +24,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { Produto, Fornecedor } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { InputMaiusculo } from '../components/InputMaiusculo';
 
 interface ParsedXmlItem {
   idTemp: string;
@@ -117,31 +119,8 @@ export const EntradaNotaFiscalPage: React.FC = () => {
   const [savingSupplier, setSavingSupplier] = useState(false);
   const [supplierError, setSupplierError] = useState<string | null>(null);
 
-  // Close product search dropdown on click outside or Escape key
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        productSearchContainerRef.current &&
-        !productSearchContainerRef.current.contains(event.target as Node)
-      ) {
-        setShowProductDropdown(false);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setShowProductDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  // Close product search dropdown on click outside or Escape key using reusable hook
+  useClickOutside(productSearchContainerRef, () => setShowProductDropdown(false), showProductDropdown);
 
   // Quick New Product Modal
   const [quickProductModalOpen, setQuickProductModalOpen] = useState(false);
@@ -317,7 +296,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
           {
             empresa_id: empresa?.id || null,
             nome: novoFornecedorNome.trim(),
-            cnpj_cpf: novoFornecedorCnpj.replace(/\D/g, '') || null,
+            cnpj: novoFornecedorCnpj.replace(/\D/g, '') || null,
             email: novoFornecedorEmail.trim() || null,
             telefone: novoFornecedorTelefone.trim() || null,
           },
@@ -948,7 +927,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
                 <label className="block font-medium text-xs text-zinc-700 mb-1">
                   Número da Nota <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputMaiusculo
                   type="text"
                   value={numeroNotaManual}
                   onChange={(e) => setNumeroNotaManual(e.target.value)}
@@ -1023,7 +1002,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
                 <div className="relative">
                   <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={searchProdutoTerm}
                     onFocus={() => setShowProductDropdown(true)}
@@ -1078,7 +1057,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
                   <label className="block font-medium text-xs text-zinc-700 mb-1">
                     Descrição na Nota
                   </label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={itemDescricao}
                     onChange={(e) => setItemDescricao(e.target.value)}
@@ -1091,7 +1070,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
                   <label className="block font-medium text-xs text-zinc-700 mb-1">
                     Unidade
                   </label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={itemUnidade}
                     onChange={(e) => setItemUnidade(e.target.value)}
@@ -1560,7 +1539,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
                 <label className="block font-medium text-zinc-700 mb-1">
                   Nome / Razão Social <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputMaiusculo
                   type="text"
                   required
                   value={novoFornecedorNome}
@@ -1575,7 +1554,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
               <div>
                 <label className="block font-medium text-zinc-700 mb-1">CNPJ / CPF</label>
-                <input
+                <InputMaiusculo
                   type="text"
                   value={novoFornecedorCnpj}
                   onChange={(e) => setNovoFornecedorCnpj(e.target.value)}
@@ -1598,7 +1577,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
                 <div>
                   <label className="block font-medium text-zinc-700 mb-1">Telefone / WhatsApp</label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={novoFornecedorTelefone}
                     onChange={(e) => setNovoFornecedorTelefone(e.target.value)}
@@ -1658,7 +1637,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
             <div className="p-5 space-y-3 text-xs">
               <div>
                 <label className="block font-medium text-zinc-700 mb-1">Nome do Produto no Sistema</label>
-                <input
+                <InputMaiusculo
                   type="text"
                   value={novoNomeProd}
                   onChange={(e) => setNovoNomeProd(e.target.value)}
@@ -1669,7 +1648,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block font-medium text-zinc-700 mb-1">Cód. Barras / SKU</label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={novoCodigo}
                     onChange={(e) => setNovoCodigo(e.target.value)}
@@ -1679,7 +1658,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
                 <div>
                   <label className="block font-medium text-zinc-700 mb-1">Unidade</label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={novaUnidadeProd}
                     onChange={(e) => setNovaUnidadeProd(e.target.value)}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, UserCheck, AlertTriangle, UserX, Plus, MapPin, CreditCard, Phone, X } from 'lucide-react';
+import { Search, UserCheck, AlertTriangle, AlertCircle, UserX, Plus, MapPin, CreditCard, Phone, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { Cliente } from '../types';
+import { useClickOutside } from '../hooks/useClickOutside';
+import { InputMaiusculo } from './InputMaiusculo';
 
 interface ClienteBuscaProps {
   selectedCliente: Cliente | null;
@@ -18,34 +20,21 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
   const [openDropdown, setOpenDropdown] = useState(false);
   const [showNovoClienteModal, setShowNovoClienteModal] = useState(false);
 
-  // Quick form for new client registration
+  // Quick form for new client registration with separated address fields
   const [novoNome, setNovoNome] = useState('');
   const [novoCpf, setNovoCpf] = useState('');
   const [novoTelefone, setNovoTelefone] = useState('');
-  const [novoEndereco, setNovoEndereco] = useState('');
+  const [novoRua, setNovoRua] = useState('');
+  const [novoNumero, setNovoNumero] = useState('');
+  const [novoBairro, setNovoBairro] = useState('');
+  const [novoReferencia, setNovoReferencia] = useState('');
   const [savingCliente, setSavingCliente] = useState(false);
+  const [clienteError, setClienteError] = useState<string | null>(null);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click or Escape key
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setOpenDropdown(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpenDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  // Close dropdown on outside click or Escape key using reusable hook
+  useClickOutside(wrapperRef, () => setOpenDropdown(false), openDropdown);
 
   // Search clients by CPF, Name or Address
   useEffect(() => {
@@ -95,14 +84,34 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
     if (!novoNome.trim()) return;
 
     setSavingCliente(true);
+    setClienteError(null);
     try {
+      // Build Rua / Logradouro for 'endereco' column, along with numero, bairro, referencia
+      const ruaVal = novoRua.trim();
+      const numVal = novoNumero.trim();
+      const bairroVal = novoBairro.trim();
+      const refVal = novoReferencia.trim();
+
+      // If rua is empty, construct fallback address text
+      let enderecoVal = ruaVal;
+      if (!enderecoVal) {
+        const partes = [];
+        if (numVal) partes.push(`Nº ${numVal}`);
+        if (bairroVal) partes.push(`Bairro: ${bairroVal}`);
+        if (refVal) partes.push(`(Ref: ${refVal})`);
+        enderecoVal = partes.join(', ');
+      }
+
       const { data, error } = await supabase
         .from('clientes')
         .insert({
           nome: novoNome.trim(),
           cpf: novoCpf.trim() || null,
           telefone: novoTelefone.trim() || null,
-          endereco: novoEndereco.trim() || null,
+          endereco: enderecoVal || null,
+          numero: numVal || null,
+          bairro: bairroVal || null,
+          referencia: refVal || null,
           bloqueado: false,
           limite_fiado: 1000,
         })
@@ -110,17 +119,21 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
         .single();
 
       if (error) {
-        alert(`Erro ao cadastrar cliente: ${error.message}`);
+        setClienteError(`Erro de cadastro: ${error.message}`);
       } else if (data) {
         onSelectCliente(data as Cliente);
         setShowNovoClienteModal(false);
         setNovoNome('');
         setNovoCpf('');
         setNovoTelefone('');
-        setNovoEndereco('');
+        setNovoRua('');
+        setNovoNumero('');
+        setNovoBairro('');
+        setNovoReferencia('');
+        setClienteError(null);
       }
     } catch (err: any) {
-      alert(`Erro: ${err?.message || 'Falha ao salvar cliente'}`);
+      setClienteError(`Erro: ${err?.message || 'Falha ao salvar cliente'}`);
     } finally {
       setSavingCliente(false);
     }
@@ -195,7 +208,7 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                 <Search className="w-4 h-4" />
               </div>
-              <input
+              <InputMaiusculo
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -289,11 +302,18 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
             </div>
 
             <form onSubmit={handleCadastrarNovoCliente} className="space-y-4">
+              {clienteError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{clienteError}</span>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">
                   Nome completo *
                 </label>
-                <input
+                <InputMaiusculo
                   type="text"
                   required
                   value={novoNome}
@@ -308,7 +328,7 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
                   <label className="block text-xs font-medium text-zinc-700 mb-1">
                     CPF
                   </label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={novoCpf}
                     onChange={(e) => setNovoCpf(e.target.value)}
@@ -320,7 +340,7 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
                   <label className="block text-xs font-medium text-zinc-700 mb-1">
                     Telefone
                   </label>
-                  <input
+                  <InputMaiusculo
                     type="text"
                     value={novoTelefone}
                     onChange={(e) => setNovoTelefone(e.target.value)}
@@ -330,15 +350,56 @@ export const ClienteBusca: React.FC<ClienteBuscaProps> = ({
                 </div>
               </div>
 
+              {/* Address Section */}
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">
-                  Endereço
+                  Rua / Logradouro
                 </label>
-                <input
+                <InputMaiusculo
                   type="text"
-                  value={novoEndereco}
-                  onChange={(e) => setNovoEndereco(e.target.value)}
-                  placeholder="Rua, número, bairro"
+                  value={novoRua}
+                  onChange={(e) => setNovoRua(e.target.value)}
+                  placeholder="Ex: Av. Brasil, Rua das Flores"
+                  className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 mb-1">
+                    Número
+                  </label>
+                  <InputMaiusculo
+                    type="text"
+                    value={novoNumero}
+                    onChange={(e) => setNovoNumero(e.target.value)}
+                    placeholder="Ex: 123, S/N"
+                    className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 mb-1">
+                    Bairro
+                  </label>
+                  <InputMaiusculo
+                    type="text"
+                    value={novoBairro}
+                    onChange={(e) => setNovoBairro(e.target.value)}
+                    placeholder="Ex: Centro"
+                    className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 mb-1">
+                  Ponto de Referência
+                </label>
+                <InputMaiusculo
+                  type="text"
+                  value={novoReferencia}
+                  onChange={(e) => setNovoReferencia(e.target.value)}
+                  placeholder="Ex: Perto do mercado X, Portão azul"
                   className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
                 />
               </div>
