@@ -38,3 +38,36 @@
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
 }
 
+/* Interactive Card Styling */
+.card-interativo {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid #E5E5E5;
+  border-left: 4px solid transparent;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-left-color 0.2s ease-in-out, border-left-width 0.2s ease-in-out;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-interativo:hover {
+  transform: translateY(-4px);
+  border-left-color: #F5D800;
+  border-left-width: 4px;
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.card-interativo:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Card highlight state */
+.card-interativo.card-selected,
+.card-interativo.card-active {
+  border-left-color: #F5D800;
+  border-left-width: 4px;
+  box-shadow: 0 4px 12px 0 rgba(245, 216, 0, 0.25);
+}
+
+

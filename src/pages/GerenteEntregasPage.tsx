@@ -131,7 +131,10 @@ export const GerenteEntregasPage: React.FC<{ onNavigate?: (page: string) => void
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="industrial-card p-3.5 space-y-1">
+        <div 
+          onClick={() => setFiltroStatus('todos')}
+          className={`card-interativo p-3.5 space-y-1 ${filtroStatus === 'todos' ? 'card-selected' : ''}`}
+        >
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Total Entregas
           </span>
@@ -140,7 +143,10 @@ export const GerenteEntregasPage: React.FC<{ onNavigate?: (page: string) => void
           </span>
         </div>
 
-        <div className="industrial-card p-3.5 space-y-1 bg-blue-50/50 border-blue-200">
+        <div 
+          onClick={() => setFiltroStatus('a_caminho')}
+          className={`card-interativo p-3.5 space-y-1 bg-blue-50/50 border-blue-200 ${filtroStatus === 'a_caminho' ? 'card-selected' : ''}`}
+        >
           <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wider block">
             Em Rota
           </span>
@@ -149,7 +155,10 @@ export const GerenteEntregasPage: React.FC<{ onNavigate?: (page: string) => void
           </span>
         </div>
 
-        <div className="industrial-card p-3.5 space-y-1 bg-green-50/50 border-green-200">
+        <div 
+          onClick={() => setFiltroStatus('entregue')}
+          className={`card-interativo p-3.5 space-y-1 bg-green-50/50 border-green-200 ${filtroStatus === 'entregue' ? 'card-selected' : ''}`}
+        >
           <span className="text-[10px] font-bold text-green-800 uppercase tracking-wider block">
             Entregues
           </span>
@@ -158,7 +167,10 @@ export const GerenteEntregasPage: React.FC<{ onNavigate?: (page: string) => void
           </span>
         </div>
 
-        <div className="industrial-card p-3.5 space-y-1 bg-amber-50/50 border-amber-200">
+        <div 
+          onClick={() => setFiltroStatus('entregue_com_avaria')}
+          className={`card-interativo p-3.5 space-y-1 bg-amber-50/50 border-amber-200 ${filtroStatus === 'entregue_com_avaria' ? 'card-selected' : ''}`}
+        >
           <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">
             Com Avaria
           </span>
@@ -167,7 +179,10 @@ export const GerenteEntregasPage: React.FC<{ onNavigate?: (page: string) => void
           </span>
         </div>
 
-        <div className="industrial-card p-3.5 space-y-1 bg-red-50/50 border-red-200 col-span-2 sm:col-span-1">
+        <div 
+          onClick={() => setFiltroStatus('nao_entregue')}
+          className={`card-interativo p-3.5 space-y-1 bg-red-50/50 border-red-200 col-span-2 sm:col-span-1 ${filtroStatus === 'nao_entregue' ? 'card-selected' : ''}`}
+        >
           <span className="text-[10px] font-bold text-red-800 uppercase tracking-wider block">
             Não Entregues
           </span>

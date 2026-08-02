@@ -313,7 +313,10 @@ export const ContasPagarPage: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-[#E5E5E5] flex items-center justify-between">
+        <div 
+          onClick={() => setStatusFilter('pendente')}
+          className={`card-interativo p-4 flex items-center justify-between ${statusFilter === 'pendente' ? 'card-selected' : ''}`}
+        >
           <div>
             <p className="text-xs font-medium text-zinc-500">Pendentes no prazo</p>
             <p className="text-lg font-bold text-zinc-900 mt-1">{formatMoney(totalPendente)}</p>
@@ -326,7 +329,10 @@ export const ContasPagarPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-red-200 bg-red-50/20 flex items-center justify-between">
+        <div 
+          onClick={() => setStatusFilter('vencido')}
+          className={`card-interativo p-4 border-red-200 bg-red-50/20 flex items-center justify-between ${statusFilter === 'vencido' ? 'card-selected' : ''}`}
+        >
           <div>
             <p className="text-xs font-medium text-red-700">Contas Vencidas</p>
             <p className="text-lg font-bold text-red-900 mt-1">{formatMoney(totalVencido)}</p>
@@ -339,7 +345,10 @@ export const ContasPagarPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-emerald-200 bg-emerald-50/20 flex items-center justify-between">
+        <div 
+          onClick={() => setStatusFilter('pago')}
+          className={`card-interativo p-4 border-emerald-200 bg-emerald-50/20 flex items-center justify-between ${statusFilter === 'pago' ? 'card-selected' : ''}`}
+        >
           <div>
             <p className="text-xs font-medium text-emerald-700">Pagas Registradas</p>
             <p className="text-lg font-bold text-emerald-900 mt-1">{formatMoney(totalPagoMes)}</p>

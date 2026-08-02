@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Building2, 
   TrendingUp, 
@@ -15,6 +16,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 export const DashboardHome: React.FC = () => {
+  const navigate = useNavigate();
   const { usuarioProfile, empresa, selectedFilial, user } = useAuth();
 
   // Calculate trial days remaining
@@ -90,7 +92,10 @@ export const DashboardHome: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Vendas hoje */}
-          <div className="industrial-card p-5 relative overflow-hidden group">
+          <div 
+            onClick={() => navigate('/dashboard/pdv')}
+            className="card-interativo p-5 relative overflow-hidden group"
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-zinc-600">Vendas hoje</span>
               <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-[#E5E5E5] flex items-center justify-center text-zinc-700">
@@ -103,11 +108,13 @@ export const DashboardHome: React.FC = () => {
             <div className="mt-2 flex items-center text-[11px] text-zinc-500 gap-1">
               <span>0 caixas abertos no momento</span>
             </div>
-            <div className="absolute top-0 right-0 w-1 h-full bg-[#F5D800]" />
           </div>
 
           {/* Card 2: Estoque baixo */}
-          <div className="industrial-card p-5 relative overflow-hidden group">
+          <div 
+            onClick={() => navigate('/dashboard/estoque')}
+            className="card-interativo p-5 relative overflow-hidden group"
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-zinc-600">Estoque baixo</span>
               <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
@@ -123,7 +130,10 @@ export const DashboardHome: React.FC = () => {
           </div>
 
           {/* Card 3: Entregas pendentes */}
-          <div className="industrial-card p-5 relative overflow-hidden group">
+          <div 
+            onClick={() => navigate('/dashboard/entregas')}
+            className="card-interativo p-5 relative overflow-hidden group"
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-zinc-600">Entregas pendentes</span>
               <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-[#E5E5E5] flex items-center justify-center text-zinc-700">
@@ -139,7 +149,10 @@ export const DashboardHome: React.FC = () => {
           </div>
 
           {/* Card 4: Fiado em aberto */}
-          <div className="industrial-card p-5 relative overflow-hidden group">
+          <div 
+            onClick={() => navigate('/dashboard/clientes')}
+            className="card-interativo p-5 relative overflow-hidden group"
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-zinc-600">Fiado em aberto</span>
               <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-[#E5E5E5] flex items-center justify-center text-zinc-700">

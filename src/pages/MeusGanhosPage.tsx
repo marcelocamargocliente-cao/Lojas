@@ -85,7 +85,7 @@ export const MeusGanhosPage: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="industrial-card p-4 space-y-1">
+        <div className="card-interativo p-4 space-y-1">
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Salário Fixo Cadastrado
           </span>
@@ -99,7 +99,7 @@ export const MeusGanhosPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="industrial-card p-4 space-y-1 bg-amber-50/50 border-[#F5D800]">
+        <div className="card-interativo p-4 space-y-1 bg-amber-50/50 border-[#F5D800]">
           <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">
             Comissões por Entregas
           </span>
@@ -111,7 +111,7 @@ export const MeusGanhosPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="industrial-card p-4 space-y-1 bg-zinc-900 text-white">
+        <div className="card-interativo p-4 space-y-1 bg-zinc-900 text-white border-l-[#F5D800]">
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Rendimento Total Estimado
           </span>

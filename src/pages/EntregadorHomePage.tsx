@@ -158,7 +158,7 @@ export const EntregadorHomePage: React.FC = () => {
             const endereco = cliente?.endereco;
 
             return (
-              <div key={entrega.id} className="industrial-card p-5 space-y-4">
+              <div key={entrega.id} className="card-interativo p-5 space-y-4">
                 {/* Header status */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#E5E5E5]">
                   <div>
