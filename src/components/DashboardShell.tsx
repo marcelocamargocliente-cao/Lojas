@@ -153,6 +153,7 @@ export const DashboardShell: React.FC = () => {
     { label: 'Clientes', path: '/dashboard/clientes', icon: Users },
     { label: 'Entregas', path: '/dashboard/entregas', icon: Truck },
     { label: 'Financeiro', path: '/dashboard/financeiro', icon: DollarSign },
+    { label: 'Funcionários', path: '/dashboard/funcionarios', icon: UserCheck },
     { label: 'Inventário', path: '/dashboard/inventario', icon: Boxes },
     { label: 'Chat interno', path: '/dashboard/chat', icon: MessageSquare },
     { label: 'Suporte', path: '/dashboard/suporte', icon: HelpCircle },
@@ -163,7 +164,7 @@ export const DashboardShell: React.FC = () => {
   // Filter out restricted items for Vendedor unless temporarily unlocked
   const visibleNavigationItems = navigationItems.filter((item) => {
     if (isVendedor && !unlockedManagerAccess) {
-      if (item.path === '/dashboard' || item.path === '/dashboard/financeiro') {
+      if (item.path === '/dashboard' || item.path === '/dashboard/financeiro' || item.path === '/dashboard/funcionarios') {
         return false;
       }
     }
@@ -176,7 +177,7 @@ export const DashboardShell: React.FC = () => {
   const isRestrictedPathForVendedor =
     isVendedor &&
     !unlockedManagerAccess &&
-    (currentPath === '/dashboard' || currentPath === '/dashboard/financeiro');
+    (currentPath === '/dashboard' || currentPath === '/dashboard/financeiro' || currentPath === '/dashboard/funcionarios');
 
 
   const handleLogout = async () => {

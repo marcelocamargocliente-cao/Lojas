@@ -32,6 +32,7 @@ export interface Filial {
 export interface Usuario {
   id: string;
   empresa_id: string;
+  filial_id?: string | null;
   nome: string;
   email: string;
   cargo: CargoUsuario;
@@ -39,6 +40,7 @@ export interface Usuario {
   salario_fixo?: number | null;
   comissao_percentual?: number | null;
   comissao_valor_fixo?: number | null;
+  ativo?: boolean | null;
   created_at?: string;
 }
 

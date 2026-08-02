@@ -14,6 +14,7 @@ import { ChatPage } from './pages/ChatPage';
 import { ChamadosPage } from './pages/ChamadosPage';
 import { ImportadorPage } from './pages/ImportadorPage';
 import { EntradaNotaFiscalPage } from './pages/EntradaNotaFiscalPage';
+import { FuncionariosPage } from './pages/FuncionariosPage';
 import { ModulePlaceholderPage } from './pages/ModulePlaceholderPage';
 
 // Protected Route Component
@@ -91,6 +92,7 @@ export default function App() {
               <Route path="clientes" element={<ModulePlaceholderPage />} />
               <Route path="entregas" element={<EntregasModulePage />} />
               <Route path="financeiro" element={<FinanceiroModulePage />} />
+              <Route path="funcionarios" element={<FuncionariosPage />} />
               <Route path="inventario" element={<InventarioModulePage />} />
               <Route path="chat" element={<ChatPage />} />
               <Route path="suporte" element={<ChamadosPage />} />
