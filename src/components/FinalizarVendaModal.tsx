@@ -14,6 +14,7 @@ import {
   ArrowRight,
   UserCheck
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
 import { CartItem, Cliente, Filial, Usuario } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -189,12 +190,27 @@ export const FinalizarVendaModal: React.FC<FinalizarVendaModalProps> = ({
 
     setLoading(true);
     try {
+      // Resolve filialId exactly as requested
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setLoading(false);
+        return;
+      }
+
       // 1. Insert Venda record
       const { data: vendaCreated, error: vendaErr } = await supabase
         .from('vendas')
         .insert({
           empresa_id: empresa?.id,
-          filial_id: selectedFilial?.id,
+          filial_id: resolvedFilialId,
           cliente_id: cliente?.id || null,
           vendedor_id: user?.id,
           valor_total: totalVenda,

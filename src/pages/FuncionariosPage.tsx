@@ -20,6 +20,7 @@ import {
   Key, 
   RefreshCw 
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { createClient } from '@supabase/supabase-js';
 import { supabase, getStoredAnonKey } from '../lib/supabaseClient';
 import { Usuario, CargoUsuario, Filial } from '../types';
@@ -53,7 +54,7 @@ export const FuncionariosPage: React.FC = () => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [cargo, setCargo] = useState<CargoUsuario>('vendedor');
-  const [filialId, setFilialId] = useState<string>('');
+  const [formFilialId, setFormFilialId] = useState<string>('');
   
   // Extra campos Entregador
   const [remuneracaoTipo, setRemuneracaoTipo] = useState<'so_fixo' | 'so_comissao' | 'fixo_comissao'>('so_fixo');
@@ -107,7 +108,7 @@ export const FuncionariosPage: React.FC = () => {
     setNome('');
     setEmail('');
     setCargo('vendedor');
-    setFilialId(selectedFilial?.id || (filiais.length > 0 ? filiais[0].id : ''));
+    setFormFilialId(selectedFilial?.id || (filiais.length > 0 ? filiais[0].id : ''));
     setRemuneracaoTipo('so_fixo');
     setSalarioFixo('');
     setComissaoPercentual('');
@@ -142,6 +143,21 @@ export const FuncionariosPage: React.FC = () => {
     }
 
     setSubmitting(true);
+    const resolvedFilialId = formFilialId || selectedFilial?.id || (
+      await supabase
+        .from('filiais')
+        .select('id')
+        .eq('empresa_id', empresa?.id)
+        .limit(1)
+        .maybeSingle()
+    ).data?.id;
+
+    if (!resolvedFilialId) {
+      toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+      setSubmitting(false);
+      return;
+    }
+
     const senhaTemp = generateTempPassword();
 
     try {
@@ -180,7 +196,7 @@ export const FuncionariosPage: React.FC = () => {
       const novoUsuario = {
         id: userId,
         empresa_id: empresa.id,
-        filial_id: filialId || null,
+        filial_id: resolvedFilialId,
         nome: nome.trim(),
         email: email.trim().toLowerCase(),
         cargo: cargo,
@@ -781,8 +797,8 @@ export const FuncionariosPage: React.FC = () => {
                     Filial Vinculada
                   </label>
                   <select
-                    value={filialId}
-                    onChange={(e) => setFilialId(e.target.value)}
+                    value={formFilialId}
+                    onChange={(e) => setFormFilialId(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#E5E5E5] rounded-lg text-xs font-medium text-zinc-900 focus:outline-none focus:border-zinc-900"
                   >
                     <option value="">Matriz / Todas as Filiais</option>

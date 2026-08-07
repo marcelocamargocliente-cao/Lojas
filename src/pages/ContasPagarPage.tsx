@@ -16,6 +16,7 @@ import {
   Trash2,
   Paperclip
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
 import { ContaPagar, Fornecedor } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -108,6 +109,20 @@ export const ContasPagarPage: React.FC = () => {
 
     setSubmitting(true);
     try {
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setSubmitting(false);
+        return;
+      }
+
       let finalFornecedorNome = '';
       let finalFornecedorId = fornecedorId || null;
 
@@ -162,7 +177,7 @@ export const ContasPagarPage: React.FC = () => {
       const { error } = await supabase.from('contas_pagar').insert([
         {
           empresa_id: empresa?.id || null,
-          filial_id: selectedFilial?.id || null,
+          filial_id: resolvedFilialId,
           fornecedor_id: finalFornecedorId,
           fornecedor_nome: finalFornecedorNome || null,
           descricao: descricao.trim(),

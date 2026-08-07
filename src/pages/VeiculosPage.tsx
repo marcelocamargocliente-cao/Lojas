@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Truck, Plus, Edit2, Trash2, Search, AlertCircle, CheckCircle2, ShieldAlert, X } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
 import { Veiculo } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -82,6 +83,20 @@ export const VeiculosPage: React.FC = () => {
 
     setSaving(true);
     try {
+      const resolvedFilialId = (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setSaving(false);
+        return;
+      }
+
       if (editingVeiculo) {
         const { error } = await supabase
           .from('veiculos')

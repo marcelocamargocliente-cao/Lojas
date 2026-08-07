@@ -21,6 +21,7 @@ import {
   PlusCircle,
   FileSpreadsheet
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
 import { Produto, Fornecedor } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -508,12 +509,26 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
     setSavingMapping(true);
     try {
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setSavingMapping(false);
+        return;
+      }
+
       const { data: notaSalva } = await supabase
         .from('notas_fiscais_entrada')
         .insert([
           {
             empresa_id: empresa?.id || null,
-            filial_id: selectedFilial?.id || null,
+            filial_id: resolvedFilialId,
             numero_nota: parsedNota.numeroNota,
             chave_acesso: parsedNota.chaveAcesso,
             fornecedor_nome: parsedNota.fornecedorNome,
@@ -554,7 +569,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
         .from('mapeamento_produto_fornecedor')
         .upsert(mappingsToUpsert, { onConflict: 'fornecedor_cnpj,codigo_fornecedor' });
 
-      await processFinalEntry(nId, parsedNota.vencimento, parsedNota.fornecedorNome, parsedNota.numeroNota, parsedNota.valorLiquido, parsedNota.itens.map(i => ({ produtoId: itemMappings[i.idTemp], quantidade: i.quantidade })));
+      await processFinalEntry(nId, parsedNota.vencimento, parsedNota.fornecedorNome, parsedNota.numeroNota, parsedNota.valorLiquido, parsedNota.itens.map(i => ({ produtoId: itemMappings[i.idTemp], quantidade: i.quantidade })), resolvedFilialId);
 
       setStep('sucesso');
     } catch (err) {
@@ -592,13 +607,27 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
     setSavingMapping(true);
     try {
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setSavingMapping(false);
+        return;
+      }
+
       // 1. Insert into notas_fiscais_entrada
       const { data: notaSalva, error: notaErr } = await supabase
         .from('notas_fiscais_entrada')
         .insert([
           {
             empresa_id: empresa?.id || null,
-            filial_id: selectedFilial?.id || null,
+            filial_id: resolvedFilialId,
             numero_nota: numeroNotaManual.trim(),
             chave_acesso: null,
             fornecedor_nome: fornecedorNome,
@@ -658,7 +687,8 @@ export const EntradaNotaFiscalPage: React.FC = () => {
         fornecedorNome,
         numeroNotaManual,
         totalLiquido,
-        itensManual.map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade }))
+        itensManual.map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade })),
+        resolvedFilialId
       );
 
       // Create synthetic parsedNota for success view display
@@ -700,12 +730,13 @@ export const EntradaNotaFiscalPage: React.FC = () => {
     fornecedorNome: string,
     numeroNota: string,
     valorLiquido: number,
-    itemsToUpdate: { produtoId: string | null; quantidade: number }[]
+    itemsToUpdate: { produtoId: string | null; quantidade: number }[],
+    resolvedFilialId: string
   ) => {
     try {
       const { error: rpcErr } = await supabase.rpc('confirmar_entrada_nota_fiscal', {
         p_nota_id: nId,
-        p_filial_id: selectedFilial?.id || null,
+        p_filial_id: resolvedFilialId,
         p_usuario_id: usuarioProfile?.id || null,
         p_vencimento: vencimento || new Date().toISOString().split('T')[0],
       });
@@ -714,18 +745,18 @@ export const EntradaNotaFiscalPage: React.FC = () => {
         console.warn('RPC confirmar_entrada_nota_fiscal fallthrough, realizando atualizacao direta:', rpcErr.message);
         // Direct Fallback Updates
         for (const item of itemsToUpdate) {
-          if (item.produtoId && selectedFilial?.id) {
+          if (item.produtoId) {
             const { data: pf } = await supabase
               .from('produtos_filial')
               .select('estoque_fisico, estoque_virtual')
               .eq('produto_id', item.produtoId)
-              .eq('filial_id', selectedFilial.id)
+              .eq('filial_id', resolvedFilialId)
               .single();
 
             const estAtual = pf ? pf.estoque_fisico || 0 : 0;
             await supabase.from('produtos_filial').upsert({
               produto_id: item.produtoId,
-              filial_id: selectedFilial.id,
+              filial_id: resolvedFilialId,
               estoque_fisico: estAtual + item.quantidade,
               estoque_virtual: estAtual + item.quantidade,
             });
@@ -736,7 +767,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
         await supabase.from('contas_pagar').insert([
           {
             empresa_id: empresa?.id || null,
-            filial_id: selectedFilial?.id || null,
+            filial_id: resolvedFilialId,
             fornecedor_nome: fornecedorNome,
             descricao: `NF-e ${numeroNota} - ${fornecedorNome}`,
             categoria: 'Fornecedores',

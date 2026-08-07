@@ -34,13 +34,27 @@ export const NovoInventarioModal: React.FC<NovoInventarioModalProps> = ({
 
     setSubmitting(true);
     try {
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        alert('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setSubmitting(false);
+        return;
+      }
+
       // 1. Create inventarios record
       const { data: inv, error: invErr } = await supabase
         .from('inventarios')
         .insert([
           {
             empresa_id: empresa?.id || null,
-            filial_id: selectedFilial.id,
+            filial_id: resolvedFilialId,
             tipo,
             modo_contagem: modoContagem,
             status: 'em_andamento',
@@ -62,7 +76,7 @@ export const NovoInventarioModal: React.FC<NovoInventarioModalProps> = ({
       let queryProds = supabase
         .from('produtos_filial')
         .select('*, produto:produtos(*)')
-        .eq('filial_id', selectedFilial.id);
+        .eq('filial_id', resolvedFilialId);
 
       const { data: prodsFilial } = await queryProds;
 

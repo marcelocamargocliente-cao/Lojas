@@ -24,6 +24,7 @@ import {
   RefreshCw,
   Plus
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import Papa from 'papaparse';
 import { supabase } from '../lib/supabaseClient';
 import { Importacao, ImportacaoRegistro, Produto, Filial } from '../types';
@@ -268,6 +269,20 @@ export const ImportadorPage: React.FC = () => {
     const total = validRows.length;
 
     try {
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (tipoImportacao === 'estoque' && !resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setExecutando(false);
+        return;
+      }
+
       const { data: newImportHeader, error: insErr } = await supabase
         .from('importacoes')
         .insert([
@@ -356,14 +371,14 @@ export const ImportadorPage: React.FC = () => {
             .limit(1)
             .maybeSingle();
 
-          if (prod && selectedFilial?.id) {
+          if (prod && resolvedFilialId) {
             createdEntityId = prod.id;
             await supabase
               .from('produtos_filiais')
               .upsert(
                 {
                   produto_id: prod.id,
-                  filial_id: selectedFilial.id,
+                  filial_id: resolvedFilialId,
                   estoque_fisico: row.dadosMapeados.estoque_fisico,
                   localizacao_fisica: row.dadosMapeados.localizacao_fisica || null,
                 },
@@ -494,12 +509,22 @@ export const ImportadorPage: React.FC = () => {
           setManualSaving(false);
           return;
         }
-        const targetFilial = estFilialId || selectedFilial?.id;
+        
+        const targetFilial = estFilialId || selectedFilial?.id || (
+          await supabase
+            .from('filiais')
+            .select('id')
+            .eq('empresa_id', empresa?.id)
+            .single()
+        ).data?.id;
+
         if (!targetFilial) {
-          setManualError('Selecione uma filial para o saldo de estoque.');
+          toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+          setManualError('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
           setManualSaving(false);
           return;
         }
+        
         if (!estQtd || isNaN(parseFloat(estQtd))) {
           setManualError('Informe uma quantidade de estoque válida.');
           setManualSaving(false);

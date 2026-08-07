@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   FileText
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
 import { Venda, VendaItem, Devolucao } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -127,6 +128,20 @@ export const DevolucaoPage: React.FC = () => {
 
     setProcessingDevolucao(true);
     try {
+      const resolvedFilialId = selectedFilial?.id ?? (
+        await supabase
+          .from('filiais')
+          .select('id')
+          .eq('empresa_id', empresa?.id)
+          .single()
+      ).data?.id;
+
+      if (!resolvedFilialId) {
+        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
+        setProcessingDevolucao(false);
+        return;
+      }
+
       const valorDevolvido = quantidadeDevolver * itemSelecionado.preco_unitario;
       const voucherCodigo = tipoResolucao === 'voucher' ? generateVoucherCode() : null;
 
@@ -135,6 +150,7 @@ export const DevolucaoPage: React.FC = () => {
         .from('devolucoes')
         .insert({
           empresa_id: empresa?.id,
+          filial_id: resolvedFilialId,
           venda_id: vendaSelecionada.id,
           venda_item_id: itemSelecionado.id,
           quantidade: quantidadeDevolver,

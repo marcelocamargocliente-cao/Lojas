@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 import { NotificacaoRealtimeProvider } from './components/NotificacaoRealtimeProvider';
 import { LoginPage } from './pages/LoginPage';
 import { OnboardingWizard } from './pages/OnboardingWizard';
@@ -69,6 +70,7 @@ const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
 export default function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-right" />
       <BrowserRouter>
         <Routes>
           {/* Public Auth Routes */}
