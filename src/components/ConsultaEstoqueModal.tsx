@@ -34,11 +34,21 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [resultados, setResultados] = useState<ProdutoComEstoque[]>([]);
   const [filiaisList, setFiliaisList] = useState<Filial[]>([]);
+  const [verTodasFiliais, setVerTodasFiliais] = useState(false);
 
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Close modal on outside click or Esc
   useClickOutside(modalRef, onClose, isOpen);
+
+  // Reset state when closing
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchTerm('');
+      setResultados([]);
+      setVerTodasFiliais(false);
+    }
+  }, [isOpen]);
 
   // Fetch all company branches on mount
   useEffect(() => {
@@ -71,7 +81,7 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
       const { data: prods, error: prodErr } = await supabase
         .from('produtos')
         .select('*')
-        .or(`nome.ilike.${q},codigo.ilike.${q},descricao.ilike.${q}`)
+        .or(`nome.ilike.${q},codigo_barras.ilike.${q},codigo_interno.ilike.${q},descricao.ilike.${q}`)
         .limit(10);
 
       if (prodErr || !prods) {
@@ -126,7 +136,7 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchTerm, filiaisList]);
+  }, [searchTerm, filiaisList, verTodasFiliais]);
 
   if (!isOpen) return null;
 
@@ -162,25 +172,39 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
 
         {/* Search Bar */}
         <div className="p-4 bg-zinc-50 border-b border-[#E5E5E5] shrink-0">
-          <div className="relative">
-            <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              autoFocus
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Digite o nome ou código do produto para consultar estoque..."
-              className="w-full pl-9 pr-10 py-2.5 bg-white border border-[#E5E5E5] rounded-lg text-xs font-medium text-zinc-900 focus:outline-none focus:border-zinc-900 shadow-2xs"
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                autoFocus
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Digite o nome ou código do produto para consultar estoque..."
+                className="w-full pl-9 pr-10 py-2.5 bg-white border border-[#E5E5E5] rounded-lg text-xs font-medium text-zinc-900 focus:outline-none focus:border-zinc-900 shadow-2xs"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setVerTodasFiliais(!verTodasFiliais)}
+              className={`px-4 py-2.5 rounded-lg border flex items-center gap-2 text-xs font-bold transition-all shadow-sm ${
+                verTodasFiliais
+                  ? 'bg-amber-100 border-amber-300 text-amber-950 ring-2 ring-amber-500/20'
+                  : 'bg-white border-[#E5E5E5] text-zinc-700 hover:bg-zinc-50'
+              }`}
+            >
+              <Building2 className={`w-4 h-4 ${verTodasFiliais ? 'text-amber-600' : 'text-zinc-400'}`} />
+              {verTodasFiliais ? 'Ver Apenas Esta Loja' : 'Ver Todas Filiais'}
+            </button>
           </div>
         </div>
 
@@ -256,50 +280,63 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
 
                   {/* Stock Breakdown Grid */}
                   <div className="p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                    {estoques.map((ef) => {
-                      const isAtual = selectedFilial?.id === ef.filialId;
-                      const temEstoque = ef.estoqueFisico > 0;
+                    {estoques
+                      .filter((ef) => verTodasFiliais || ef.filialId === selectedFilial?.id)
+                      .map((ef) => {
+                        const isAtual = selectedFilial?.id === ef.filialId;
+                        const temEstoque = ef.estoqueFisico > 0;
 
-                      return (
-                        <div
-                          key={ef.filialId}
-                          className={`p-2.5 rounded-lg border text-xs flex flex-col justify-between ${
-                            isAtual
-                              ? 'border-[#F5D800] bg-amber-50/40 ring-1 ring-[#F5D800]'
-                              : 'border-[#E5E5E5] bg-white'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-semibold text-zinc-800 truncate flex items-center gap-1">
-                              <Building2 className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                              {ef.filialNome}
-                            </span>
-                            {isAtual && (
-                              <span className="text-[9px] bg-[#F5D800] text-zinc-950 font-bold px-1 rounded">
-                                ESTA LOJA
+                        return (
+                          <div
+                            key={ef.filialId}
+                            className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all ${
+                              isAtual
+                                ? 'border-[#F5D800] bg-amber-50/40 ring-1 ring-[#F5D800] shadow-sm'
+                                : 'border-[#E5E5E5] bg-white hover:border-zinc-300'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className={`font-bold truncate flex items-center gap-1.5 ${isAtual ? 'text-amber-950' : 'text-zinc-800'}`}>
+                                <Building2 className={`w-3.5 h-3.5 shrink-0 ${isAtual ? 'text-amber-600' : 'text-zinc-400'}`} />
+                                {ef.filialNome}
                               </span>
+                              {isAtual && (
+                                <span className="text-[8px] bg-amber-500 text-white font-black px-1.5 rounded-full tracking-tighter">
+                                  ATUAL
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="space-y-2 pt-2 border-t border-zinc-100">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] uppercase font-bold text-zinc-400">Estoque</span>
+                                <span
+                                  className={`font-black text-sm ${
+                                    temEstoque ? 'text-emerald-600' : 'text-red-500'
+                                  }`}
+                                >
+                                  {ef.estoqueFisico} {produto.unidade || 'un'}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] uppercase font-bold text-zinc-400">Preço</span>
+                                <span className="font-black text-sm text-zinc-900">
+                                  R$ {Number(ef.precoVenda || 0).toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {ef.localizacao && (
+                              <div className="mt-2 pt-1 border-t border-zinc-50 flex items-center gap-1.5">
+                                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tight">Loc:</span>
+                                <span className="text-[10px] text-zinc-600 font-medium truncate">
+                                  {ef.localizacao}
+                                </span>
+                              </div>
                             )}
                           </div>
-
-                          <div className="flex items-baseline justify-between mt-2 pt-2 border-t border-zinc-100">
-                            <span className="text-[11px] text-zinc-500">Estoque:</span>
-                            <span
-                              className={`font-black text-sm ${
-                                temEstoque ? 'text-emerald-600' : 'text-red-500'
-                              }`}
-                            >
-                              {ef.estoqueFisico} {produto.unidade || 'un'}
-                            </span>
-                          </div>
-
-                          {ef.localizacao && (
-                            <span className="text-[10px] text-zinc-400 block mt-1 truncate">
-                              Loc: {ef.localizacao}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 </div>
               );
