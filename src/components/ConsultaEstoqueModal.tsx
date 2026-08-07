@@ -209,7 +209,7 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
         </div>
 
         {/* Results Area */}
-        <div className="p-4 overflow-y-auto flex-1 space-y-4">
+        <div className="p-4 flex-1 overflow-y-auto max-h-[70vh] space-y-4">
           {loading && (
             <div className="py-12 flex flex-col items-center justify-center text-zinc-500 gap-2">
               <RefreshCw className="w-6 h-6 animate-spin text-[#F5D800]" />
@@ -248,38 +248,23 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
               return (
                 <div
                   key={produto.id}
-                  className="border border-[#E5E5E5] rounded-xl bg-white overflow-hidden shadow-2xs"
+                  className="py-3 border-b border-zinc-100 last:border-0"
                 >
-                  {/* Product Title Bar */}
-                  <div className="p-3 bg-zinc-50 border-b border-[#E5E5E5] flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-zinc-900">{produto.nome}</span>
-                        {produto.codigo && (
-                          <span className="text-[10px] bg-zinc-200 text-zinc-700 px-1.5 py-0.5 rounded font-mono">
-                            Cód: {produto.codigo}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[11px] text-zinc-500">
-                        Preço padrão: R$ {Number(produto.preco_venda || 0).toFixed(2)} / {produto.unidade || 'UN'}
-                      </span>
+                  {/* Compact Product Header */}
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-sm text-zinc-900">{produto.nome}</h4>
+                      {produto.codigo && (
+                        <span className="text-[9px] text-zinc-400 font-mono">#{produto.codigo}</span>
+                      )}
                     </div>
-
-                    <div className="text-right">
-                      <span className="text-[10px] uppercase font-bold text-zinc-400 block">Total Rede</span>
-                      <span
-                        className={`text-sm font-black ${
-                          totalEstoqueRede > 0 ? 'text-emerald-700' : 'text-red-600'
-                        }`}
-                      >
-                        {totalEstoqueRede} {produto.unidade || 'un'}
-                      </span>
-                    </div>
+                    <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-tight">
+                      Total Rede: <span className={totalEstoqueRede > 0 ? 'text-emerald-600' : 'text-red-400'}>{totalEstoqueRede} {produto.unidade || 'un'}</span>
+                    </span>
                   </div>
 
-                  {/* Stock Breakdown Grid */}
-                  <div className="p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                  {/* Compact Chips Grid */}
+                  <div className="flex flex-wrap gap-2">
                     {estoques
                       .filter((ef) => verTodasFiliais || ef.filialId === selectedFilial?.id)
                       .map((ef) => {
@@ -289,51 +274,37 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
                         return (
                           <div
                             key={ef.filialId}
-                            className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all ${
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg border transition-all ${
                               isAtual
-                                ? 'border-[#F5D800] bg-amber-50/40 ring-1 ring-[#F5D800] shadow-sm'
-                                : 'border-[#E5E5E5] bg-white hover:border-zinc-300'
+                                ? 'border-[#F5A623] bg-[#FFFBF0] shadow-sm'
+                                : 'border-[#E5E7EB] bg-white'
                             }`}
                           >
-                            <div className="flex items-center justify-between mb-2">
-                              <span className={`font-bold truncate flex items-center gap-1.5 ${isAtual ? 'text-amber-950' : 'text-zinc-800'}`}>
-                                <Building2 className={`w-3.5 h-3.5 shrink-0 ${isAtual ? 'text-amber-600' : 'text-zinc-400'}`} />
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="text-sm font-bold text-zinc-800 uppercase tracking-tight">
                                 {ef.filialNome}
                               </span>
                               {isAtual && (
-                                <span className="text-[8px] bg-amber-500 text-white font-black px-1.5 rounded-full tracking-tighter">
+                                <span className="text-[9px] font-black bg-[#F5A623] text-white px-1 rounded-sm leading-tight">
                                   ATUAL
                                 </span>
                               )}
                             </div>
 
-                            <div className="space-y-2 pt-2 border-t border-zinc-100">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] uppercase font-bold text-zinc-400">Estoque</span>
-                                <span
-                                  className={`font-black text-sm ${
-                                    temEstoque ? 'text-emerald-600' : 'text-red-500'
-                                  }`}
-                                >
-                                  {ef.estoqueFisico} {produto.unidade || 'un'}
+                            <div className="flex items-center gap-3 border-l border-zinc-200 pl-3">
+                              <div className="flex items-center gap-1 whitespace-nowrap">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase">Estoque:</span>
+                                <span className={`text-xs font-black ${temEstoque ? 'text-green-600' : 'text-red-500'}`}>
+                                  {ef.estoqueFisico} <span className="text-[10px] font-normal">{produto.unidade || 'un'}</span>
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] uppercase font-bold text-zinc-400">Preço</span>
-                                <span className="font-black text-sm text-zinc-900">
+                              <div className="flex items-center gap-1 whitespace-nowrap">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase">Preço:</span>
+                                <span className="text-xs font-black text-zinc-900">
                                   R$ {Number(ef.precoVenda || 0).toFixed(2)}
                                 </span>
                               </div>
                             </div>
-
-                            {ef.localizacao && (
-                              <div className="mt-2 pt-1 border-t border-zinc-50 flex items-center gap-1.5">
-                                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tight">Loc:</span>
-                                <span className="text-[10px] text-zinc-600 font-medium truncate">
-                                  {ef.localizacao}
-                                </span>
-                              </div>
-                            )}
                           </div>
                         );
                       })}

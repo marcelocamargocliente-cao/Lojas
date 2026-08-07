@@ -227,25 +227,25 @@ export const FinalizarVendaModal: React.FC<FinalizarVendaModalProps> = ({
       }
 
       const vendaId = vendaCreated.id;
+      if (vendaId && items.length > 0) {
+        // 2. Insert Venda Items
+        const itemsPayload = items.map((i) => ({
+          venda_id: vendaId,
+          produto_id: i.produto_id,
+          quantidade: i.quantidade,
+          valor_unitario: i.preco_unitario,
+          valor_total: i.subtotal,
+          quantidade_devolvida: 0
+        }));
 
-      // 2. Insert Venda Items
-      const itemsPayload = items.map((i) => ({
-        venda_id: vendaId,
-        produto_id: i.produto_id,
-        quantidade: i.quantidade,
-        valor_unitario: i.preco_unitario,
-        valor_total: i.subtotal,
-        quantidade_devolvida: 0
-      }));
+        const { error: itemsErr } = await supabase
+          .from('venda_itens')
+          .insert(itemsPayload);
 
-      const { error: itemsErr } = await supabase
-        .from('venda_itens')
-        .insert(itemsPayload);
-
-      if (itemsErr) {
-        console.error('Erro ao inserir itens da venda:', itemsErr);
-        toast.error(`Atenção: A venda foi gravada, mas houve um erro ao salvar os itens: ${itemsErr.message}`);
-        // Consider if we should stop here, but usually a partial success (venda saved) is better than a crash
+        if (itemsErr) {
+          console.error('Erro ao inserir itens da venda:', itemsErr);
+          toast.error(`Atenção: A venda foi gravada, mas houve um erro ao salvar os itens: ${itemsErr.message}`);
+        }
       }
 
       let fiadoAprovadoFlag = false;

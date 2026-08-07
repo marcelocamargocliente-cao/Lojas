@@ -110,18 +110,24 @@ export const DevolucaoPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const { data } = await supabase
+      const { data: itens, error } = await supabase
         .from('venda_itens')
-        .select('*, produto:produtos(*)')
-        .eq('venda_id', venda.id)
-        .gt('quantidade', 0);
+        .select(`
+          *,
+          produto:produtos(id, nome, unidade, codigo_barras)
+        `)
+        .eq('venda_id', venda.id);
 
-      if (data) {
-        setItensVenda(data as VendaItem[]);
-        if (data.length > 0) {
-          setItemSelecionado(data[0] as VendaItem);
-          setQuantidadeDevolver(data[0].quantidade || 1);
+      console.log('itens devolucao:', itens, error);
+
+      if (itens) {
+        setItensVenda(itens as VendaItem[]);
+        if (itens.length > 0) {
+          setItemSelecionado(itens[0] as VendaItem);
+          setQuantidadeDevolver(itens[0].quantidade || 1);
         }
+      } else {
+        setItensVenda([]);
       }
     } catch (err) {
       console.error('Erro ao buscar itens da venda:', err);
@@ -384,41 +390,49 @@ export const DevolucaoPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {itensVenda.map((it) => (
-                    <div
-                      key={it.id}
-                      onClick={() => {
-                        setItemSelecionado(it);
-                        setQuantidadeDevolver(it.quantidade);
-                      }}
-                      className={`p-3 border rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                        itemSelecionado?.id === it.id
-                          ? 'border-zinc-900 bg-amber-50/50 shadow-2xs'
-                          : 'border-[#E5E5E5] bg-white hover:bg-zinc-50'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-semibold text-xs text-zinc-900">
-                          {it.produto?.nome || 'Produto em catálogo'}
-                        </div>
-                        <div className="text-[11px] text-zinc-500 mt-0.5">
-                          Qtd vendida: {it.quantidade} • Preço un: R${' '}
-                          {Number(it.valor_unitario || 0).toFixed(2)}
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="font-bold text-xs text-zinc-900 block">
-                          R$ {Number(it.valor_total || 0).toFixed(2)}
-                        </span>
-                        {itemSelecionado?.id === it.id && (
-                          <span className="text-[10px] font-bold bg-[#F5D800] text-zinc-950 px-1.5 py-0.5 rounded">
-                            SELECIONADO
-                          </span>
-                        )}
-                      </div>
+                  {itensVenda.length === 0 ? (
+                    <div className="py-8 text-center bg-zinc-50 border border-dashed border-zinc-300 rounded-lg">
+                      <p className="text-xs text-zinc-500 font-medium italic">
+                        Esta venda não possui itens registrados ou todos já foram devolvidos.
+                      </p>
                     </div>
-                  ))}
+                  ) : (
+                    itensVenda.map((it) => (
+                      <div
+                        key={it.id}
+                        onClick={() => {
+                          setItemSelecionado(it);
+                          setQuantidadeDevolver(it.quantidade);
+                        }}
+                        className={`p-3 border rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
+                          itemSelecionado?.id === it.id
+                            ? 'border-zinc-900 bg-amber-50/50 shadow-2xs'
+                            : 'border-[#E5E5E5] bg-white hover:bg-zinc-50'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-semibold text-xs text-zinc-900">
+                            {it.produto?.nome || 'Produto em catálogo'}
+                          </div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5">
+                            Qtd vendida: {it.quantidade} • Preço un: R${' '}
+                            {Number(it.valor_unitario || 0).toFixed(2)}
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="font-bold text-xs text-zinc-900 block">
+                            R$ {Number(it.valor_total || 0).toFixed(2)}
+                          </span>
+                          {itemSelecionado?.id === it.id && (
+                            <span className="text-[10px] font-bold bg-[#F5D800] text-zinc-950 px-1.5 py-0.5 rounded">
+                              SELECIONADO
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
