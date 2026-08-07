@@ -88,7 +88,7 @@ export interface Produto {
   codigo_interno?: string | null;
   sku?: string | null;
   nome: string;
-  unidade?: string | null;
+  unidade_medida?: string | null;
   preco_venda: number;
   descricao?: string | null;
   created_at?: string;
@@ -109,7 +109,7 @@ export interface CartItem {
   produto_id: string;
   nome: string;
   codigo?: string | null;
-  unidade?: string | null;
+  unidade_medida?: string | null;
   quantidade: number; // Decimal support
   preco_unitario: number;
   subtotal: number;

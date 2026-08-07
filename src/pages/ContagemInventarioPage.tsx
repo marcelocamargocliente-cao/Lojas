@@ -450,7 +450,7 @@ export const ContagemInventarioPage: React.FC<ContagemInventarioPageProps> = ({
                     {/* Modo Aberto System Stock */}
                     {inventario.modo_contagem === 'aberta' && (
                       <td className="p-3.5 font-bold text-zinc-700">
-                        {item.quantidade_sistema} {item.produto?.unidade || 'UN'}
+                        {item.quantidade_sistema} {item.produto?.unidade_medida || 'UN'}
                       </td>
                     )}
 

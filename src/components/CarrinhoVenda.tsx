@@ -130,7 +130,7 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
         produto_id: produto.id,
         nome: produto.nome,
         codigo: produto.codigo,
-        unidade: produto.unidade || 'UN',
+        unidade_medida: produto.unidade_medida || 'UN',
         quantidade: 1,
         preco_unitario: Number(produto.preco_venda || 0),
         subtotal: Number(produto.preco_venda || 0),
@@ -258,7 +258,7 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
                       R$ {Number(prod.preco_venda || 0).toFixed(2)}
                     </span>
                     <span className="text-[10px] text-zinc-500">
-                      Un: {prod.unidade || 'UN'}
+                      Un: {prod.unidade_medida || 'UN'}
                     </span>
                   </div>
                 </button>
@@ -317,7 +317,7 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
                         </div>
                         <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5">
                           {item.codigo && <span>Cód: {item.codigo}</span>}
-                          <span>Unidade: {item.unidade}</span>
+                          <span>Unidade: {item.unidade_medida}</span>
                           {item.localizacao && (
                             <span>Corredor: {item.localizacao}</span>
                           )}
@@ -334,7 +334,7 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
                                 : 'text-zinc-800'
                             }`}
                           >
-                            {item.estoque_disponivel} {item.unidade}
+                            {item.estoque_disponivel} {item.unidade_medida}
                           </span>
 
                           {estoqueInsuficiente && (

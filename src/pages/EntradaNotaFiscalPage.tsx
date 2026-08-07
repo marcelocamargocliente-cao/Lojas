@@ -56,7 +56,7 @@ interface ItemManual {
   produtoId: string | null;
   codigo: string;
   descricao: string;
-  unidade: string;
+  unidade_medida: string;
   quantidade: number;
   valorUnitario: number;
   valorImposto: number;
@@ -182,7 +182,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
     setSelectedProduto(prod);
     setSearchProdutoTerm(`${prod.nome} ${prod.codigo ? `[${prod.codigo}]` : ''}`);
     setItemDescricao(prod.nome);
-    setItemUnidade(prod.unidade || 'UN');
+    setItemUnidade(prod.unidade_medida || 'UN');
     setShowProductDropdown(false);
 
     if (prod.preco_venda) {
@@ -214,7 +214,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
       produtoId: selectedProduto?.id || null,
       codigo: selectedProduto?.codigo || '',
       descricao: itemDescricao.trim(),
-      unidade: itemUnidade.trim() || 'UN',
+      unidade_medida: itemUnidade.trim() || 'UN',
       quantidade: qtd,
       valorUnitario: unitPrice,
       valorImposto: tax,
@@ -264,7 +264,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
 
     setSearchProdutoTerm(item.descricao);
     setItemDescricao(item.descricao);
-    setItemUnidade(item.unidade);
+    setItemUnidade(item.unidade_medida);
     setItemQuantidade(item.quantidade.toString());
     setItemValorUnitario(item.valorUnitario.toString());
     setItemValorImposto(item.valorImposto.toString());
@@ -1070,7 +1070,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
                         <div>
                           <span className="font-bold text-zinc-900 block">{p.nome}</span>
                           <span className="text-[10px] text-zinc-500">
-                            Cód: {p.codigo || 'Sem cód'} | Un: {p.unidade || 'UN'}
+                            Cód: {p.codigo || 'Sem cód'} | Un: {p.unidade_medida || 'UN'}
                           </span>
                         </div>
                         <span className="font-semibold text-zinc-900 text-xs">
@@ -1265,7 +1265,7 @@ export const EntradaNotaFiscalPage: React.FC = () => {
                           )}
                         </td>
                         <td className="p-3 font-bold text-zinc-900">
-                          {item.quantidade} <span className="text-zinc-500 font-normal uppercase text-[10px]">{item.unidade}</span>
+                          {item.quantidade} <span className="text-zinc-500 font-normal uppercase text-[10px]">{item.unidade_medida}</span>
                         </td>
                         <td className="p-3 font-medium text-zinc-800">{formatMoney(item.valorUnitario)}</td>
                         <td className="p-3 text-zinc-600">{formatMoney(item.valorImposto)}</td>

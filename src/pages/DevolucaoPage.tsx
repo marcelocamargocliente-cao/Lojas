@@ -114,7 +114,7 @@ export const DevolucaoPage: React.FC = () => {
         .from('venda_itens')
         .select(`
           *,
-          produto:produtos(id, nome, unidade, codigo_barras)
+          produto:produtos(id, nome, unidade_medida, codigo_barras)
         `)
         .eq('venda_id', venda.id);
 

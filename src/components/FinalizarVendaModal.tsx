@@ -234,7 +234,7 @@ export const FinalizarVendaModal: React.FC<FinalizarVendaModalProps> = ({
           produto_id: i.produto_id,
           quantidade: i.quantidade,
           valor_unitario: i.preco_unitario,
-          valor_total: i.subtotal,
+          valor_total: Number(i.quantidade) * Number(i.preco_unitario),
           quantidade_devolvida: 0
         }));
 

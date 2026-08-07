@@ -259,7 +259,7 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
                       )}
                     </div>
                     <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-tight">
-                      Total Rede: <span className={totalEstoqueRede > 0 ? 'text-emerald-600' : 'text-red-400'}>{totalEstoqueRede} {produto.unidade || 'un'}</span>
+                      Total Rede: <span className={totalEstoqueRede > 0 ? 'text-emerald-600' : 'text-red-400'}>{totalEstoqueRede} {produto.unidade_medida || 'un'}</span>
                     </span>
                   </div>
 
@@ -295,7 +295,7 @@ export const ConsultaEstoqueModal: React.FC<ConsultaEstoqueModalProps> = ({
                               <div className="flex items-center gap-1 whitespace-nowrap">
                                 <span className="text-[10px] font-bold text-zinc-400 uppercase">Estoque:</span>
                                 <span className={`text-xs font-black ${temEstoque ? 'text-green-600' : 'text-red-500'}`}>
-                                  {ef.estoqueFisico} <span className="text-[10px] font-normal">{produto.unidade || 'un'}</span>
+                                  {ef.estoqueFisico} <span className="text-[10px] font-normal">{produto.unidade_medida || 'un'}</span>
                                 </span>
                               </div>
                               <div className="flex items-center gap-1 whitespace-nowrap">
