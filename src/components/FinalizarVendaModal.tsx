@@ -188,6 +188,18 @@ export const FinalizarVendaModal: React.FC<FinalizarVendaModalProps> = ({
       }
     }
 
+    // Validação de quantidades inteiras por unidade
+    const unidadesInteiras = ['un', 'saco', 'barra', 'par', 'caixa', 'mil'];
+    for (const item of items) {
+      const unidadeNormalizada = (item.unidade_medida || 'un').toLowerCase();
+      const isInteiro = unidadesInteiras.includes(unidadeNormalizada);
+      
+      if (isInteiro && (item.quantidade < 1 || !Number.isInteger(item.quantidade))) {
+        toast.error(`Quantidade inválida para ${item.nome}. Mínimo: 1 ${unidadeNormalizada}.`);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       // Resolve filialId exactly as requested

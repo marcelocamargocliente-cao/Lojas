@@ -161,9 +161,10 @@ export interface Devolucao {
   venda_item_id: string;
   quantidade: number;
   tipo_resolucao: 'troca' | 'estorno_cartao' | 'dinheiro' | 'credito_cliente' | 'voucher';
-  valor_devolvido: number;
+  valor: number;
   voucher_codigo?: string | null;
   motivo?: string | null;
+  registrado_por?: string | null;
   created_at?: string;
 }
 

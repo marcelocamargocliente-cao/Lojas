@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthContext';
 import { InputMaiusculo, TextareaMaiusculo } from '../components/InputMaiusculo';
 
 export const DevolucaoPage: React.FC = () => {
-  const { empresa, selectedFilial } = useAuth();
+  const { empresa, selectedFilial, usuarioProfile } = useAuth();
 
   const [buscaVenda, setBuscaVenda] = useState('');
   const [vendasRecentes, setVendasRecentes] = useState<Venda[]>([]);
@@ -160,37 +160,32 @@ export const DevolucaoPage: React.FC = () => {
     }
 
     setProcessingDevolucao(true);
+    const unidadesInteiras = ['un', 'saco', 'barra', 'par', 'caixa', 'mil'];
+    const unidadeNormalizada = (itemSelecionado?.produto?.unidade_medida || 'un').toLowerCase();
+    const isInteiro = unidadesInteiras.includes(unidadeNormalizada);
+
+    if (isInteiro && !Number.isInteger(quantidadeDevolver)) {
+      setErro(`A unidade (${unidadeNormalizada}) exige quantidade inteira.`);
+      setProcessingDevolucao(false);
+      return;
+    }
+
     try {
-      const resolvedFilialId = selectedFilial?.id ?? (
-        await supabase
-          .from('filiais')
-          .select('id')
-          .eq('empresa_id', empresa?.id)
-          .single()
-      ).data?.id;
-
-      if (!resolvedFilialId) {
-        toast.error('Nenhuma filial encontrada. Cadastre uma filial primeiro.');
-        setProcessingDevolucao(false);
-        return;
-      }
-
       const valorDevolvido = quantidadeDevolver * itemSelecionado.valor_unitario;
       const voucherCodigo = tipoResolucao === 'voucher' ? generateVoucherCode() : null;
 
-      // 1. Record devolution in `devolucoes`
+      // 1. Record devolution in `devolucoes` - Match requested structure exactly
       const { data: devCreated, error: devErr } = await supabase
         .from('devolucoes')
         .insert({
-          empresa_id: empresa?.id,
-          filial_id: resolvedFilialId,
+          empresa_id: usuarioProfile?.empresa_id || empresa?.id,
           venda_id: vendaSelecionada.id,
           venda_item_id: itemSelecionado.id,
           quantidade: quantidadeDevolver,
           tipo_resolucao: tipoResolucao,
-          valor_devolvido: valorDevolvido,
-          voucher_codigo: voucherCodigo,
-          motivo: motivo.trim() || 'Devolução no balcão',
+          valor: valorDevolvido, 
+          motivo: motivo.trim() || 'DEVOLUÇÃO NO BALCÃO',
+          registrado_por: usuarioProfile?.id
         })
         .select()
         .single();
@@ -455,7 +450,12 @@ export const DevolucaoPage: React.FC = () => {
                       {itemSelecionado.produto?.nome}
                     </span>
                     <span className="text-xs text-zinc-600">
-                      Máx devolvível: {itemSelecionado.quantidade}
+                      {(() => {
+                        const unidadesInteiras = ['un', 'saco', 'barra', 'par', 'caixa', 'mil'];
+                        const unidadeNormalizada = (itemSelecionado.produto?.unidade_medida || 'un').toLowerCase();
+                        const isInteiro = unidadesInteiras.includes(unidadeNormalizada);
+                        return `Máx devolvível: ${itemSelecionado.quantidade} ${unidadeNormalizada}`;
+                      })()}
                     </span>
                   </div>
 
@@ -463,15 +463,28 @@ export const DevolucaoPage: React.FC = () => {
                     <label className="block text-xs font-medium text-zinc-700 mb-1">
                       Quantidade a devolver (aceita parcial)
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      max={itemSelecionado.quantidade}
-                      value={quantidadeDevolver}
-                      onChange={(e) => setQuantidadeDevolver(parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-xs font-semibold text-zinc-900 focus:outline-none focus:border-zinc-900"
-                    />
+                    {(() => {
+                      const unidadesInteiras = ['un', 'saco', 'barra', 'par', 'caixa', 'mil'];
+                      const unidadeNormalizada = (itemSelecionado.produto?.unidade_medida || 'un').toLowerCase();
+                      const isInteiro = unidadesInteiras.includes(unidadeNormalizada);
+                      
+                      return (
+                        <input
+                          type="number"
+                          min={isInteiro ? 1 : 0.01}
+                          step={isInteiro ? 1 : 0.01}
+                          max={itemSelecionado.quantidade}
+                          value={quantidadeDevolver}
+                          onChange={(e) => {
+                            const val = isInteiro 
+                              ? Math.max(1, Math.round(Number(e.target.value)))
+                              : Math.max(0.01, Number(e.target.value));
+                            setQuantidadeDevolver(Math.min(val, itemSelecionado.quantidade));
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-lg text-xs font-semibold text-zinc-900 focus:outline-none focus:border-zinc-900"
+                        />
+                      );
+                    })()}
                   </div>
 
                   <div>

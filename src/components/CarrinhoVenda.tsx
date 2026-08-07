@@ -142,7 +142,15 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
   };
 
   const handleUpdateQuantity = (index: number, newQty: number) => {
-    const qty = Math.max(0.01, Number(newQty) || 0.01);
+    const item = items[index];
+    const unidadesInteiras = ['un', 'saco', 'barra', 'par', 'caixa', 'mil'];
+    const unidadeNormalizada = (item.unidade_medida || 'un').toLowerCase();
+    const isInteiro = unidadesInteiras.includes(unidadeNormalizada);
+
+    const qty = isInteiro 
+      ? Math.max(1, Math.round(Number(newQty) || 1))
+      : Math.max(0.01, Number(newQty) || 0.01);
+
     const updated = [...items];
     updated[index].quantidade = qty;
     updated[index].subtotal = qty * updated[index].preco_unitario;
@@ -354,14 +362,27 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
 
                       {/* Fractional Quantity Input */}
                       <td className="py-3 px-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          value={item.quantidade}
-                          onChange={(e) => handleUpdateQuantity(idx, parseFloat(e.target.value))}
-                          className="w-20 px-2 py-1 bg-white border border-[#E5E5E5] rounded text-xs text-zinc-900 font-semibold focus:outline-none focus:border-zinc-900 text-center"
-                        />
+                        {(() => {
+                          const unidadesInteiras = ['un', 'saco', 'barra', 'par', 'caixa', 'mil'];
+                          const unidadeNormalizada = (item.unidade_medida || 'un').toLowerCase();
+                          const isInteiro = unidadesInteiras.includes(unidadeNormalizada);
+                          
+                          return (
+                            <input
+                              type="number"
+                              min={isInteiro ? 1 : 0.01}
+                              step={isInteiro ? 1 : 0.01}
+                              value={item.quantidade}
+                              onChange={(e) => {
+                                const val = isInteiro 
+                                  ? Math.max(1, Math.round(Number(e.target.value)))
+                                  : Math.max(0.01, Number(e.target.value));
+                                handleUpdateQuantity(idx, val);
+                              }}
+                              className="w-20 px-2 py-1 bg-white border border-[#E5E5E5] rounded text-xs text-zinc-900 font-semibold focus:outline-none focus:border-zinc-900 text-center"
+                            />
+                          );
+                        })()}
                       </td>
 
                       {/* Unit Price */}
