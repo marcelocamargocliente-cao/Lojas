@@ -55,7 +55,7 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
           .from('produtos')
           .select('id')
           .eq('empresa_id', usuarioProfile?.empresa_id)
-          .or(`nome.ilike.${queryText},codigo.ilike.${queryText}`)
+          .or(`nome.ilike.${queryText},codigo_barras.ilike.${queryText},codigo_interno.ilike.${queryText}`)
           .limit(20);
 
         if (prodErr || !prods || prods.length === 0) {

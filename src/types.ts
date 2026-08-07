@@ -84,6 +84,9 @@ export interface Produto {
   id: string;
   empresa_id?: string;
   codigo?: string | null;
+  codigo_barras?: string | null;
+  codigo_interno?: string | null;
+  sku?: string | null;
   nome: string;
   unidade?: string | null;
   preco_venda: number;
