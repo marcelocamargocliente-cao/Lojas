@@ -233,8 +233,9 @@ export const FinalizarVendaModal: React.FC<FinalizarVendaModalProps> = ({
         venda_id: vendaId,
         produto_id: i.produto_id,
         quantidade: i.quantidade,
-        preco_unitario: i.preco_unitario,
-        subtotal: i.subtotal,
+        valor_unitario: i.preco_unitario,
+        valor_total: i.subtotal,
+        quantidade_devolvida: 0
       }));
 
       const { error: itemsErr } = await supabase

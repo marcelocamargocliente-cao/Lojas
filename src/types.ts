@@ -148,8 +148,9 @@ export interface VendaItem {
   venda_id: string;
   produto_id: string;
   quantidade: number;
-  preco_unitario: number;
-  subtotal: number;
+  valor_unitario: number;
+  valor_total: number;
+  quantidade_devolvida: number;
   produto?: Produto;
 }
 

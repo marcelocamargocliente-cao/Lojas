@@ -142,7 +142,7 @@ export const DevolucaoPage: React.FC = () => {
         return;
       }
 
-      const valorDevolvido = quantidadeDevolver * itemSelecionado.preco_unitario;
+      const valorDevolvido = quantidadeDevolver * itemSelecionado.valor_unitario;
       const voucherCodigo = tipoResolucao === 'voucher' ? generateVoucherCode() : null;
 
       // 1. Record devolution in `devolucoes`
@@ -376,13 +376,13 @@ export const DevolucaoPage: React.FC = () => {
                         </div>
                         <div className="text-[11px] text-zinc-500 mt-0.5">
                           Qtd vendida: {it.quantidade} • Preço un: R${' '}
-                          {Number(it.preco_unitario || 0).toFixed(2)}
+                          {Number(it.valor_unitario || 0).toFixed(2)}
                         </div>
                       </div>
 
                       <div className="text-right">
                         <span className="font-bold text-xs text-zinc-900 block">
-                          R$ {Number(it.subtotal || 0).toFixed(2)}
+                          R$ {Number(it.valor_total || 0).toFixed(2)}
                         </span>
                         {itemSelecionado?.id === it.id && (
                           <span className="text-[10px] font-bold bg-[#F5D800] text-zinc-950 px-1.5 py-0.5 rounded">
@@ -466,7 +466,7 @@ export const DevolucaoPage: React.FC = () => {
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex justify-between font-bold">
                     <span>Valor a reembolsar:</span>
                     <span>
-                      R$ {(quantidadeDevolver * (itemSelecionado.preco_unitario || 0)).toFixed(2)}
+                      R$ {(quantidadeDevolver * (itemSelecionado.valor_unitario || 0)).toFixed(2)}
                     </span>
                   </div>
 
