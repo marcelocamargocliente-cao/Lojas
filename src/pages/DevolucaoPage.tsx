@@ -24,6 +24,7 @@ export const DevolucaoPage: React.FC = () => {
 
   const [buscaVenda, setBuscaVenda] = useState('');
   const [vendasRecentes, setVendasRecentes] = useState<Venda[]>([]);
+  const [vendasFiltradas, setVendasFiltradas] = useState<Venda[]>([]);
   const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
   const [itensVenda, setItensVenda] = useState<VendaItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,7 +47,7 @@ export const DevolucaoPage: React.FC = () => {
     tipoResolucao: string;
   } | null>(null);
 
-  // Fetch recent sales for selected branch
+  // Fetch sales for selected branch with optional search
   useEffect(() => {
     async function fetchVendas() {
       setLoading(true);
@@ -55,16 +56,39 @@ export const DevolucaoPage: React.FC = () => {
           .from('vendas')
           .select('*, cliente:clientes(*), vendedor:usuarios(*)')
           .eq('status', 'finalizada')
-          .order('created_at', { ascending: false })
-          .limit(10);
+          .order('created_at', { ascending: false });
 
         if (selectedFilial?.id) {
           query = query.eq('filial_id', selectedFilial.id);
         }
 
-        const { data } = await query;
+        if (buscaVenda.trim()) {
+          const term = buscaVenda.trim();
+          // Try searching by ID or joining with clients
+          // Since Supabase JS has limited join filtering, we use this approach:
+          if (term.length >= 3) {
+            query = query.or(`id.ilike.%${term}%`); 
+            // If we had cliente_nome denormalized, we'd use it here.
+            // For now, we'll fetch more and filter locally if needed, 
+            // or just rely on the ID search which is common for sales.
+          }
+        }
+
+        const { data } = await query.limit(20);
         if (data) {
           setVendasRecentes(data as Venda[]);
+          
+          // Local secondary filter for client name if search term is active
+          if (buscaVenda.trim()) {
+            const term = buscaVenda.trim().toLowerCase();
+            const filtered = data.filter(v => 
+              v.id.toLowerCase().includes(term) || 
+              (v.cliente?.nome || '').toLowerCase().includes(term)
+            );
+            setVendasFiltradas(filtered as Venda[]);
+          } else {
+            setVendasFiltradas(data as Venda[]);
+          }
         }
       } catch (err) {
         console.error('Erro ao buscar vendas para devolução:', err);
@@ -72,8 +96,10 @@ export const DevolucaoPage: React.FC = () => {
         setLoading(false);
       }
     }
-    fetchVendas();
-  }, [selectedFilial?.id]);
+    
+    const timeoutId = setTimeout(fetchVendas, 300);
+    return () => clearTimeout(timeoutId);
+  }, [selectedFilial?.id, buscaVenda]);
 
   // Select sale and fetch its items
   const handleSelectVenda = async (venda: Venda) => {
@@ -87,7 +113,8 @@ export const DevolucaoPage: React.FC = () => {
       const { data } = await supabase
         .from('venda_itens')
         .select('*, produto:produtos(*)')
-        .eq('venda_id', venda.id);
+        .eq('venda_id', venda.id)
+        .gt('quantidade', 0);
 
       if (data) {
         setItensVenda(data as VendaItem[]);
@@ -309,7 +336,7 @@ export const DevolucaoPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E5E5E5]">
-                    {vendasRecentes.map((v) => (
+                    {vendasFiltradas.map((v) => (
                       <tr
                         key={v.id}
                         className={`hover:bg-amber-50/50 transition-colors ${

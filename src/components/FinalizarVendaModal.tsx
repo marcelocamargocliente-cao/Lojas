@@ -243,7 +243,9 @@ export const FinalizarVendaModal: React.FC<FinalizarVendaModalProps> = ({
         .insert(itemsPayload);
 
       if (itemsErr) {
-        console.warn('Erro ao inserir itens da venda:', itemsErr);
+        console.error('Erro ao inserir itens da venda:', itemsErr);
+        toast.error(`Atenção: A venda foi gravada, mas houve um erro ao salvar os itens: ${itemsErr.message}`);
+        // Consider if we should stop here, but usually a partial success (venda saved) is better than a crash
       }
 
       let fiadoAprovadoFlag = false;
