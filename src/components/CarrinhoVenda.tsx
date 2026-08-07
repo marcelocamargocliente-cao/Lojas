@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Trash2, AlertTriangle, Building2, Package, Layers, X, Edit3 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { CartItem, Filial, Produto, ProdutoFilial } from '../types';
+import { useAuth } from '../context/AuthContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 interface CarrinhoVendaProps {
@@ -17,6 +18,7 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
   filiais,
   onUpdateItems,
 }) => {
+  const { usuarioProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [sugestoesProdutos, setSugestoesProdutos] = useState<Produto[]>([]);
   const [loadingProdutos, setLoadingProdutos] = useState(false);
@@ -47,15 +49,39 @@ export const CarrinhoVenda: React.FC<CarrinhoVendaProps> = ({
       setLoadingProdutos(true);
       try {
         const queryText = `%${searchTerm.trim()}%`;
-        const { data, error } = await supabase
+        
+        // Passo 1: buscar ids de produtos que batem com o nome ou código
+        const { data: prods, error: prodErr } = await supabase
           .from('produtos')
-          .select('*')
+          .select('id')
+          .eq('empresa_id', usuarioProfile?.empresa_id)
           .or(`nome.ilike.${queryText},codigo.ilike.${queryText}`)
-          .limit(8);
+          .limit(20);
 
-        if (!error && data) {
-          setSugestoesProdutos(data as Produto[]);
+        if (prodErr || !prods || prods.length === 0) {
+          setSugestoesProdutos([]);
+          setOpenDropdown(false);
+          return;
+        }
+
+        // Passo 2: buscar preço/estoque na filial
+        const { data: resultado, error: resErr } = await supabase
+          .from('produtos_filial')
+          .select('*, produto:produtos(*)')
+          .eq('filial_id', selectedFilial?.id)
+          .in('produto_id', prods.map(p => p.id))
+          .gt('preco_venda', 0);
+
+        if (!resErr && resultado) {
+          const mapped = resultado.map((item: any) => ({
+            ...item.produto,
+            preco_venda: item.preco_venda || item.produto.preco_venda,
+            estoque_fisico: item.estoque_fisico
+          }));
+          setSugestoesProdutos(mapped as Produto[]);
           setOpenDropdown(true);
+        } else {
+          setSugestoesProdutos([]);
         }
       } catch (err) {
         console.error('Erro na busca de produtos:', err);
